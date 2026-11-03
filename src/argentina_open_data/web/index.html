@@ -265,7 +265,7 @@
           <p class="aside-description">Indicadores operativos calculados a partir del registro de fuentes y los snapshots publicados. No son estadísticas del país.</p>
           <div class="metric-list">
             <div class="metric"><span class="metric-label">Fuentes registradas</span><strong class="metric-value" id="metric-sources">—</strong></div>
-            <div class="metric"><span class="metric-label">Fuentes verificadas</span><strong class="metric-value" id="metric-verified">—</strong></div>
+            <div class="metric"><span class="metric-label">Licencias verificadas</span><strong class="metric-value" id="metric-verified">—</strong></div>
             <div class="metric"><span class="metric-label">Snapshots publicados</span><strong class="metric-value" id="metric-snapshots">—</strong></div>
           </div>
           <div class="aside-foot"><span id="catalog-updated">Consultando el registro…</span><a href="#fuentes">Ver fuentes <span aria-hidden="true">↗</span></a></div>
@@ -415,7 +415,7 @@
     }
 
     function statusLabel(status) {
-      const labels = { verified: "Verificada", metadata_only: "Solo metadatos", quarantined: "En revisión" };
+      const labels = { verified: "Licencia verificada", metadata_only: "Solo metadatos", quarantined: "En revisión" };
       return labels[status] || status || "Sin estado";
     }
 
