@@ -38,3 +38,116 @@ jobs:
         run: docker compose config --quiet
       - name: Build production image
         run: docker build --tag argentina-open-data:ci .
+      - name: Smoke test seeded REST and MCP services
+        run: |
+          cleanup() {
+            docker compose down --volumes --remove-orphans
+          }
+          trap cleanup EXIT
+
+          docker compose up --build -d
+
+          python - <<'PY'
+          import json
+          import subprocess
+          import time
+          import urllib.error
+          import urllib.request
+
+          def get_json(url):
+              with urllib.request.urlopen(url, timeout=5) as response:
+                  return json.load(response)
+
+          def post_json(url, payload):
+              body = json.dumps(payload).encode("utf-8")
+              request = urllib.request.Request(
+                  url,
+                  data=body,
+                  headers={
+                      "Content-Type": "application/json",
+                      "Accept": "application/json, text/event-stream",
+                  },
+                  method="POST",
+              )
+              with urllib.request.urlopen(request, timeout=10) as response:
+                  raw = response.read().decode("utf-8")
+              try:
+                  return json.loads(raw)
+              except json.JSONDecodeError:
+                  for line in raw.splitlines():
+                      if line.startswith("data: "):
+                          return json.loads(line[6:])
+                  raise AssertionError(f"unexpected MCP response: {raw[:500]}")
+
+          def wait_for_api():
+              deadline = time.monotonic() + 60
+              while time.monotonic() < deadline:
+                  try:
+                      if get_json("http://127.0.0.1:8000/health").get("status") == "ok":
+                          return
+                  except (OSError, urllib.error.URLError, ValueError):
+                      time.sleep(1)
+              raise AssertionError("REST API did not become healthy")
+
+          def verify_rest():
+              wait_for_api()
+              snapshots = get_json("http://127.0.0.1:8000/api/v1/snapshots")
+              assert snapshots["count"] == 1, snapshots
+              assert snapshots["data"][0]["record_count"] == 24, snapshots
+              result = get_json(
+                  "http://127.0.0.1:8000/api/v1/territories?resource=provincias&q=Santa%20Fe"
+              )
+              assert result["meta"]["total"] == 1, result
+              assert result["data"][0]["geo_id"] == "82", result
+
+          def verify_mcp():
+              base = "http://127.0.0.1:8001/mcp"
+              initialized = post_json(base, {
+                  "jsonrpc": "2.0",
+                  "id": 1,
+                  "method": "initialize",
+                  "params": {
+                      "protocolVersion": "2025-03-26",
+                      "capabilities": {},
+                      "clientInfo": {"name": "ci-smoke", "version": "1.0"},
+                  },
+              })
+              assert "result" in initialized, initialized
+              listed = post_json(base, {
+                  "jsonrpc": "2.0",
+                  "id": 2,
+                  "method": "tools/list",
+                  "params": {},
+              })
+              tools = [item["name"] for item in listed["result"]["tools"]]
+              assert "search_territories" in tools, tools
+              called = post_json(base, {
+                  "jsonrpc": "2.0",
+                  "id": 3,
+                  "method": "tools/call",
+                  "params": {
+                      "name": "search_territories",
+                      "arguments": {
+                          "query": "Santa Fe",
+                          "resource": "provincias",
+                          "limit": 10,
+                      },
+                  },
+              })
+              assert not called.get("result", {}).get("isError", False), called
+              text = next(
+                  item["text"] for item in called["result"]["content"]
+                  if item.get("type") == "text"
+              )
+              data = json.loads(text)
+              assert data["data"][0]["geo_id"] == "82", data
+
+          verify_rest()
+          verify_mcp()
+          subprocess.run(
+              ["docker", "compose", "restart", "api", "mcp"],
+              check=True,
+          )
+          verify_rest()
+          verify_mcp()
+          PY
