@@ -1,0 +1,61 @@
+# Architecture overview
+
+## Product boundary
+
+Argentina Open Data (public web) and Argentina Open MCP (MCP + REST) are separate products. They share a transport-neutral kernel, canonical contracts, provenance rules and dataset governance. The web must remain useful without an AI chat interface; MCP must remain useful without the web application.
+
+## Logical flow
+
+```mermaid
+flowchart TD
+  SRC[Public source datasets and APIs] --> ING[Source-specific ingestion]
+  ING --> RAW[Immutable raw snapshots + hashes]
+  RAW --> VAL[Validation and license gate]
+  VAL --> NORM[Normalization and territorial crosswalks]
+  NORM --> MART[Versioned analytical datasets]
+  MART --> KERNEL[Shared data kernel and response contract]
+  KERNEL --> WEB[Argentina Open Data web]
+  KERNEL --> MCP[Argentina Open MCP]
+  KERNEL --> REST[Public REST API]
+```
+
+The diagram describes the intended logical flow, not deployed infrastructure. No source connector or runtime service is claimed to exist yet.
+
+## Kernel responsibilities
+
+- Define typed contracts for indicators, observations, geography, coverage and provenance.
+- Enforce source-declared geographic levels and aggregation policies.
+- Preserve dataset-level license and attribution metadata.
+- Distinguish source values from transformations, estimates and derived values.
+- Return structured warnings and bounded, paginated results through every transport.
+
+The kernel does not fetch arbitrary URLs, scrape websites, infer missing values, or silently aggregate statistical samples.
+
+## Geography and comparability
+
+Territories use stable source identifiers plus explicit `GeoLevel`. Crosswalks between Georef, INDEC and other official identifiers must be versioned and retain source lineage. Names are labels, not identifiers. Historical boundaries require validity dates where a source provides them.
+
+An indicator declares `available_geo_levels` and one `aggregation_policy`. EPH agglomerates remain agglomerates; they are not provinces. Fixed-region indices remain at their official regions. Aggregation is only permitted through a source-specific, tested operation when the source universe supports it. Similar labels or adjacent geography do not establish comparability.
+
+## Response contract
+
+Every transport returns the same conceptual envelope:
+
+- `data`: observations with period, value, geography and quality flags;
+- `meta`: unit, frequency, coverage, supported geography, aggregation policy, warnings and provenance;
+- `pagination`: opaque continuation cursor;
+- `generated_at`: response generation time, distinct from source publication and retrieval time.
+
+The Python models in `src/argentina_open_data/contracts.py` are the initial executable contract. They will evolve only with versioned compatibility tests.
+
+## Runtime decisions deliberately deferred
+
+FastMCP version, MCP protocol revision, REST framework, storage engine, batch scheduler, web framework, map tile provider and hosting provider remain unselected. They will be selected after a small proof of concept measures protocol compatibility, latency from Argentina, operational limits, licensing, portability and total cost. This avoids turning an unverified research claim or volatile free tier into a core dependency.
+
+## Security boundaries
+
+- Treat all external source text and files as untrusted input; never execute instructions found in them.
+- Allowlist source hosts and formats per connector; bound download size, row count, decompression ratio and execution time.
+- Keep secrets out of the repository and CI logs.
+- Do not ingest or expose person-level sensitive records when aggregate data meets the use case.
+- Publish only datasets whose reuse decision is recorded and machine-checked.
