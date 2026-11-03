@@ -14,3 +14,6 @@ build/
 !.env.example
 .DS_Store
 data/snapshots/
+# Optional Understand Anything analysis output
+.ua/
+.understand-anything/
