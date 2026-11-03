@@ -9,7 +9,7 @@ WORKDIR /app
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 COPY data/seed-snapshots ./seed-snapshots
-RUN python -m pip install --no-cache-dir .
+RUN python -m pip install --no-cache-dir ".[server]"
 
 RUN useradd --create-home --uid 10001 appuser \
     && mkdir -p /app/data/snapshots \
