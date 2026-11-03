@@ -112,7 +112,7 @@ The MCP framework and protocol revision, REST framework, web framework, data sto
 - [x] Document why unreviewed sources and the unverified Tucumán license claim remain out of the approved registry.
 - [x] Verify the full Python matrix and Ruff in GitHub Actions before merging (PR #1).
 
-## Runtime milestone — 2026-11-03
+## Runtime milestone — 2026-11-02
 
 - [x] Add content-addressed immutable snapshot storage with SHA-256 verification.
 - [x] Add bounded, explicit Georef snapshot capture; no automatic ingestion at startup or request time.
