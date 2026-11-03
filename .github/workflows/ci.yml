@@ -182,8 +182,19 @@ jobs:
           set -euo pipefail
           cd cloudflare/worker
           uv run pywrangler dev --ip 127.0.0.1 --port 8787 > worker.log 2>&1 &
-          echo $! > worker.pid
-          trap 'kill "$(cat worker.pid)" 2>/dev/null || true' EXIT
+          worker_pid=$!
+          cleanup() {
+            status=$?
+            if [ "$status" -ne 0 ]; then
+              echo "::group::Cloudflare Worker startup log"
+              cat worker.log || true
+              echo "::endgroup::"
+            fi
+            kill "$worker_pid" 2>/dev/null || true
+            wait "$worker_pid" 2>/dev/null || true
+            exit "$status"
+          }
+          trap cleanup EXIT
           python - <<'PY'
           import json
           import time
