@@ -1,11 +1,4 @@
-"""Cloudflare Worker entrypoint with lazy, request-time MCP initialization.
-
-MCPServer creates an ephemeral signing key with os.urandom() at construction.
-Cloudflare intentionally blocks entropy during module initialization because
-startup values can be snapshotted and repeated across isolates. The MCP module
-and FastAPI/MCP composition are therefore created on the first incoming request,
-after the Worker runtime is active.
-"""
+"""Cloudflare Worker entrypoint: REST/web plus stateless MCP."""
 
 from __future__ import annotations
 
@@ -13,26 +6,32 @@ from contextlib import asynccontextmanager
 
 from workers import WorkerEntrypoint, asgi
 
-_app = None
+_store = None
 
 
 def _get_app():
-    global _app
-    if _app is not None:
-        return _app
+    global _store
 
-    # Import only after the first request enters the running Worker. Importing
-    # mcp_server constructs MCPServer, which needs runtime entropy.
-    from mcp.server.transport_security import TransportSecuritySettings
+    # Python Workers prohibit entropy during module initialization because their
+    # startup memory is snapshotted. Defer imports and MCPServer construction to
+    # the request handler, where a cryptographically secure runtime RNG is ready.
+    from starlette.applications import Starlette
+    from starlette.routing import Mount
 
     from argentina_open_data import api as api_module
     from argentina_open_data import mcp_server as mcp_module
     from argentina_open_data.bundled_snapshots import BundledSnapshotStore
+    from mcp.server.transport_security import TransportSecuritySettings
 
-    store = BundledSnapshotStore()
-    api_module.store = store
-    mcp_module.store = store
+    if _store is None:
+        _store = BundledSnapshotStore()
+    api_module.store = _store
+    mcp_module.store = _store
 
+    # The MCP SDK's session manager can only run once per instance. The Cloudflare
+    # ASGI adapter owns lifespan per request, so use a fresh stateless server for
+    # each request. No MCP session state is required by this read-only API.
+    server = mcp_module.create_mcp_server()
     security = TransportSecuritySettings(
         allowed_hosts=[
             "arg-open.simondalmasso44.workers.dev",
@@ -46,25 +45,27 @@ def _get_app():
             "http://localhost:*",
         ],
     )
-    mcp_http_app = mcp_module.mcp.streamable_http_app(
+    mcp_http_app = server.streamable_http_app(
         stateless_http=True,
         json_response=True,
         transport_security=security,
+        streamable_http_path="/",
     )
 
-    # FastAPI owns the host lifespan. A mounted sub-application does not run
-    # its own lifespan, so explicitly start MCP's session manager here.
     @asynccontextmanager
     async def lifespan(app):
-        async with mcp_module.mcp.session_manager.run():
+        async with server.session_manager.run():
             yield
 
-    api_module.app.router.lifespan_context = lifespan
-
-    # Keep the public web and REST routes first; /mcp is handled by the mount.
-    api_module.app.mount("/", mcp_http_app)
-    _app = api_module.app
-    return _app
+    # Route MCP first. The path "/" on the child app makes the public endpoint
+    # exactly /mcp; the API FastAPI app handles all remaining routes.
+    return Starlette(
+        routes=[
+            Mount("/mcp", app=mcp_http_app),
+            Mount("/", app=api_module.app),
+        ],
+        lifespan=lifespan,
+    )
 
 
 class Default(WorkerEntrypoint):
