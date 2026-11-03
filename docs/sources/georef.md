@@ -42,6 +42,6 @@ The client spaces calls by at least nine seconds per instance by default, which 
 ## Known limitations
 
 - The first connector supports only four jurisdictional resources.
-- The client-level rate limiter does not coordinate across processes or deployments.
-- The connector does not yet store immutable raw snapshots or compute a dataset-wide snapshot manifest; the caller/pipeline must do that before publishing derived assets.
+- The client-level rate limiter does not coordinate across processes or deployments; production ingestion must use a shared request budget or a single controlled ingestion worker.
+- The explicit ingestion pipeline stores immutable, SHA-256-addressed snapshot documents and manifests. Each document retains the source record payload alongside the normalized territory. The hash covers canonical JSON produced after parsing and validation, not the original HTTP response bytes or headers; do not describe it as a byte-for-byte hash of the publisher response.
 - Georef is a territorial reference source, not a substitute for source-specific statistical geographies or their universes.
