@@ -1,5 +1,6 @@
-import anyio
 import json
+
+import anyio
 from mcp import Client
 
 from argentina_open_data import mcp_server
