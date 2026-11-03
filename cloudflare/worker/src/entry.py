@@ -1,73 +1,60 @@
-"""Cloudflare Worker entrypoint: REST/web plus stateless MCP."""
+"""Cloudflare Worker entrypoint: FastAPI REST/web and stateless MCP."""
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
+from urllib.parse import urlsplit
 
 from workers import WorkerEntrypoint, asgi
 
 _store = None
 
 
-def _get_app():
+def _get_app(request):
     global _store
 
-    # Python Workers prohibit entropy during module initialization because their
-    # startup memory is snapshotted. Defer imports and MCPServer construction to
-    # the request handler, where a cryptographically secure runtime RNG is ready.
-    from mcp.server.transport_security import TransportSecuritySettings
-    from starlette.applications import Starlette
-    from starlette.routing import Mount
-
+    # Cloudflare Workers prohibit entropy during module initialization because
+    # startup memory is snapshotted. Defer application imports to the first
+    # request, where the runtime RNG is available.
     from argentina_open_data import api as api_module
-    from argentina_open_data import mcp_server as mcp_module
     from argentina_open_data.bundled_snapshots import BundledSnapshotStore
 
     if _store is None:
         _store = BundledSnapshotStore()
     api_module.store = _store
-    mcp_module.store = _store
 
-    # The MCP SDK's session manager can only run once per instance. The Cloudflare
-    # ASGI adapter owns lifespan per request, so use a fresh stateless server for
-    # each request. No MCP session state is required by this read-only API.
-    server = mcp_module.create_mcp_server()
-    security = TransportSecuritySettings(
-        allowed_hosts=[
-            "arg-open.simondalmasso44.workers.dev",
-            "arg-open.simondalmasso44.workers.dev:*",
-            "127.0.0.1:*",
-            "localhost:*",
-        ],
-        allowed_origins=[
-            "https://arg-open.simondalmasso44.workers.dev",
-            "http://127.0.0.1:*",
-            "http://localhost:*",
-        ],
-    )
-    mcp_http_app = server.streamable_http_app(
-        stateless_http=True,
-        json_response=True,
-        transport_security=security,
-        streamable_http_path="/",
-    )
+    # Ordinary website and REST requests never construct or start an MCP server.
+    # MCP is stateless/read-only, so create a fresh server and ASGI lifespan only
+    # for a request addressed to the MCP endpoint.
+    request_path = urlsplit(request.url).path
+    if request_path in {"/mcp", "/mcp/"}:
+        from argentina_open_data import mcp_server as mcp_module
+        from mcp.server.transport_security import TransportSecuritySettings
 
-    @asynccontextmanager
-    async def lifespan(app):
-        async with server.session_manager.run():
-            yield
+        mcp_module.store = _store
+        server = mcp_module.create_mcp_server()
+        security = TransportSecuritySettings(
+            allowed_hosts=[
+                "arg-open.simondalmasso44.workers.dev",
+                "arg-open.simondalmasso44.workers.dev:*",
+                "127.0.0.1:*",
+                "localhost:*",
+            ],
+            allowed_origins=[
+                "https://arg-open.simondalmasso44.workers.dev",
+                "http://127.0.0.1:*",
+                "http://localhost:*",
+            ],
+        )
+        return server.streamable_http_app(
+            stateless_http=True,
+            json_response=True,
+            transport_security=security,
+            streamable_http_path=request_path,
+        )
 
-    # Route MCP first. The path "/" on the child app makes the public endpoint
-    # exactly /mcp; the API FastAPI app handles all remaining routes.
-    return Starlette(
-        routes=[
-            Mount("/mcp", app=mcp_http_app),
-            Mount("/", app=api_module.app),
-        ],
-        lifespan=lifespan,
-    )
+    return api_module.app
 
 
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
-        return await asgi.fetch(_get_app(), request, self.env)
+        return await asgi.fetch(_get_app(request), request, self.env)
