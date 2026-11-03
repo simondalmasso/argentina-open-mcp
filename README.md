@@ -4,7 +4,7 @@
 
 Argentina Open Data es una plataforma pública para descubrir, consultar, comparar y reutilizar datos de Argentina. Argentina Open MCP es su interfaz para agentes y desarrolladores. Ambos productos comparten un kernel de datos y un contrato de respuesta; ninguno depende de que el otro exista.
 
-> Estado: kernel de datos y primer adaptador territorial implementados; no hay todavía API REST/MCP ni aplicación web desplegadas. La rama de trabajo contiene contratos canónicos, comparabilidad con warnings, registro de fuentes y perfil Georef. Las fuentes, sus licencias y su granularidad se incorporan únicamente después de una verificación por dataset.
+> Estado: kernel, API REST, servidor MCP, interfaz web inicial y pipeline de snapshots implementados. El repositorio incluye una ingesta manual y acotada de Georef. Todavía no hay snapshots de datos publicados ni un despliegue público. Las fuentes, sus licencias y su granularidad se incorporan únicamente después de una verificación por dataset.
 
 ## Principios no negociables
 
@@ -33,7 +33,7 @@ docs/plans/               # Hoja de ruta ejecutable
 .github/workflows/        # CI
 ```
 
-## Desarrollo local
+## Ejecutar localmente
 
 Requiere Python 3.11 o superior.
 
@@ -41,16 +41,46 @@ Requiere Python 3.11 o superior.
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
 python -m pip install -e ".[dev]"
-python -m pytest
-ruff check .
+uvicorn argentina_open_data.api:app --reload
 ```
+
+- Web: http://127.0.0.1:8000/
+- REST y OpenAPI: http://127.0.0.1:8000/docs
+- Health: http://127.0.0.1:8000/health
+
+En otra terminal, ejecutar el servidor MCP Streamable HTTP:
+
+```bash
+argentina-open mcp
+```
+
+Endpoint MCP local: http://127.0.0.1:8001/mcp
+
+### Primera ingesta territorial
+
+La aplicación **no descarga datos al arrancar**. Para capturar un snapshot acotado de provincias desde Georef:
+
+```bash
+argentina-open snapshot-georef provincias --limit 1000 --max-pages 1
+```
+
+El resultado se guarda en `data/snapshots/` (o en `SNAPSHOT_DIR`) como objeto inmutable identificado por SHA-256. La captura conserva los registros fuente devueltos por Georef y su normalización territorial. El hash cubre el documento canónico, no los bytes HTTP originales ni sus encabezados. Para ampliar cobertura, indicar explícitamente otro recurso y un máximo de páginas; cada solicitud respeta la cadencia conservadora del cliente Georef.
+
+### Docker Compose
+
+```bash
+docker compose up --build -d
+docker compose --profile ingest run --rm ingest-georef provincias --limit 1000 --max-pages 1
+```
+
+Compose comparte el volumen de snapshots entre REST y MCP. La ingesta es un perfil manual, nunca una tarea de inicio automática. Si se publica MCP en un dominio real, definir `MCP_ALLOWED_HOSTS` con el hostname público exacto (y `MCP_ALLOWED_ORIGINS` solo si lo consumen navegadores). No abrir el servidor con una allowlist genérica.
 
 ## Productos previstos
 
 1. **Argentina Open Data:** buscador y catálogo, fichas metodológicas, mapas, series, comparadores, descargas y estado verificable de fuentes.
 2. **Argentina Open MCP:** herramientas MCP acotadas y REST `/api/v1` para descubrir indicadores, consultar observaciones, comparar territorios y recuperar procedencia.
 
-La lista de herramientas y los proveedores de ejecución se definirán después de probar contratos y fuentes reales. No se fija todavía un framework MCP ni un proveedor de hosting.
+La API usa FastAPI y el servidor de agentes usa el SDK oficial MCP 2.3.0 sobre Streamable HTTP. Ambos procesos comparten snapshots locales. El proveedor de hosting sigue siendo reemplazable.
 
 ## Estado del trabajo
 
