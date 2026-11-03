@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from enum import StrEnum
 from typing import Annotated
 
@@ -103,7 +103,7 @@ class DataResponse(ContractModel):
     data: tuple[Observation, ...]
     meta: IndicatorMetadata
     pagination: Pagination = Field(default_factory=Pagination)
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @field_validator("generated_at")
     @classmethod
