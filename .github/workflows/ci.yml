@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, "bootstrap/**"]
+    branches: [main, "bootstrap/**", "feature/**"]
   pull_request:
   workflow_dispatch:
 

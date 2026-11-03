@@ -64,7 +64,7 @@ La aplicación **no descarga datos al arrancar**. Para capturar un snapshot acot
 argentina-open snapshot-georef provincias --limit 1000 --max-pages 1
 ```
 
-El resultado se guarda en `data/snapshots/` como objeto inmutable identificado por SHA-256. Para ampliar cobertura, indicar explícitamente otro recurso y un máximo de páginas; cada solicitud respeta la cadencia conservadora del cliente Georef. No publicar datasets adicionales hasta revisar sus términos particulares.
+El resultado se guarda en `data/snapshots/` (o en `SNAPSHOT_DIR`) como objeto inmutable identificado por SHA-256. La captura conserva los registros fuente devueltos por Georef y su normalización territorial. El hash cubre el documento canónico, no los bytes HTTP originales ni sus encabezados. Para ampliar cobertura, indicar explícitamente otro recurso y un máximo de páginas; cada solicitud respeta la cadencia conservadora del cliente Georef.
 
 ### Docker Compose
 
@@ -73,17 +73,7 @@ docker compose up --build -d
 docker compose --profile ingest run --rm ingest-georef provincias --limit 1000 --max-pages 1
 ```
 
-Compose comparte el volumen de snapshots entre REST y MCP. La ingesta es un perfil manual, nunca una tarea de inicio automática.
-
-Requiere Python 3.11 o superior.
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
-python -m pip install -e ".[dev]"
-python -m pytest
-ruff check .
-```
+Compose comparte el volumen de snapshots entre REST y MCP. La ingesta es un perfil manual, nunca una tarea de inicio automática. Si se publica MCP en un dominio real, definir `MCP_ALLOWED_HOSTS` con el hostname público exacto (y `MCP_ALLOWED_ORIGINS` solo si lo consumen navegadores). No abrir el servidor con una allowlist genérica.
 
 ## Productos previstos
 

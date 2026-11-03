@@ -61,8 +61,9 @@ def _canonical_json(value: Any) -> bytes:
 class SnapshotStore:
     """Filesystem store with immutable SHA-256-addressed objects."""
 
-    def __init__(self, root: str | Path = "data/snapshots") -> None:
-        self.root = Path(root).resolve()
+    def __init__(self, root: str | Path | None = None) -> None:
+        configured_root = root if root is not None else os.getenv("SNAPSHOT_DIR", "data/snapshots")
+        self.root = Path(configured_root).resolve()
 
     def save(self, document: SnapshotDocument) -> SnapshotManifest:
         payload = _canonical_json(document.model_dump(mode="json"))
