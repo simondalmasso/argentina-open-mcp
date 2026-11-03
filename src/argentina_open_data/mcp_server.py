@@ -15,7 +15,7 @@ store = SnapshotStore()
 
 
 @mcp.tool()
-def list_data_sources() -> dict:
+async def list_data_sources() -> dict:
     """List registered Argentine public-data sources, license status and evidence."""
     return {
         "sources": [source.model_dump(mode="json") for source in list_sources()]
@@ -23,7 +23,7 @@ def list_data_sources() -> dict:
 
 
 @mcp.tool()
-def search_territories(
+async def search_territories(
     query: str = "",
     resource: str = "provincias",
     limit: int = 20,
@@ -64,7 +64,7 @@ def search_territories(
 
 
 @mcp.tool()
-def get_territory(geo_id: str) -> dict:
+async def get_territory(geo_id: str) -> dict:
     """Retrieve one territory by its official Georef identifier from local snapshots."""
     if not geo_id or len(geo_id) > 100:
         return {"error": "invalid_geo_id"}
