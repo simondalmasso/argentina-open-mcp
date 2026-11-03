@@ -259,7 +259,7 @@
         <aside class="hero-aside" aria-label="Estado del catálogo">
           <div class="aside-top">
             <span class="aside-label">Estado del catálogo</span>
-            <span class="live-pill"><i aria-hidden="true"></i> Conectado a la API</span>
+            <span class="live-pill" id="api-status"><i aria-hidden="true"></i> Verificando API…</span>
           </div>
           <h2 class="aside-title">Transparencia desde el origen.</h2>
           <p class="aside-description">Indicadores operativos calculados a partir del registro de fuentes y los snapshots publicados. No son estadísticas del país.</p>
@@ -467,6 +467,22 @@
       return card;
     }
 
+    async function loadHealth() {
+      const status = byId("api-status");
+      try {
+        const health = await getJSON("/health");
+        if (health.status !== "ok") throw new Error("Servicio no saludable");
+        status.replaceChildren(node("i", ""), document.createTextNode(" API disponible"));
+        status.setAttribute("aria-label", "API disponible");
+      } catch (_) {
+        status.replaceChildren(node("i", ""), document.createTextNode(" API no disponible"));
+        status.setAttribute("aria-label", "API no disponible");
+        status.style.color = "#9d5142";
+        status.style.background = "#f5e3de";
+        status.querySelector("i").style.background = "#b85e4e";
+      }
+    }
+
     async function loadSources() {
       const grid = byId("source-grid");
       try {
@@ -590,6 +606,7 @@
       }
     });
 
+    loadHealth();
     loadSources();
     loadSnapshots();
   </script>
