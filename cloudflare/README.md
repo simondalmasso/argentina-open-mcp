@@ -36,10 +36,10 @@ The CI job starts the actual local Cloudflare runtime and smoke-tests the homepa
 
 ## One-time GitHub configuration
 
-To deploy the existing `arg-open` Worker from GitHub Actions, configure these repository settings:
+To deploy the existing `arg-open` Worker from GitHub Actions, configure these repository secrets:
 
 - **Secret** `CLOUDFLARE_API_TOKEN`: a Cloudflare API token with the **Workers Editor** role scoped to the existing `arg-open` Worker. This is sufficient to update and deploy that Worker without granting access to every Worker in the account.
-- **Variable** `CLOUDFLARE_ACCOUNT_ID`: that account's Account ID.
+- **Secret** `CLOUDFLARE_ACCOUNT_ID`: that account's Account ID. The deployment workflow reads it from GitHub Secrets.
 
 The token is stored only in GitHub Actions Secrets. Do not commit it, paste it into the repository, or add it to `.env`.
 
