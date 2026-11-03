@@ -6,6 +6,7 @@ def test_mcp_source_tool_returns_registry():
     assert {item["source_id"] for item in result["sources"]} >= {
         "georef.territories",
         "bcra.website-content",
+        "indec.api-catalog",
     }
 
 

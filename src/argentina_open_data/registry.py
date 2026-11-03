@@ -98,6 +98,33 @@ _SOURCES = (
             "license to third-party data merely exposed or linked by Georef."
         ),
     ),
+    SourceDescriptor(
+        source_id="indec.api-catalog",
+        name="Catálogo API-INDEC — servicios estadísticos",
+        publisher="Instituto Nacional de Estadística y Censos (INDEC)",
+        source_url="https://api.indec.gob.ar/docs",
+        license_class=LicenseClass.CUSTOM_TERMS,
+        license_evidence_url="https://api.indec.gob.ar/ayuda/terminos",
+        license_reviewed_at=date(2026, 11, 2),
+        attribution="Fuente: INDEC, Catálogo API-INDEC, tabla y período consultados.",
+        status=SourceStatus.METADATA_ONLY,
+        custom_terms=CustomLicenseTerms(
+            evidence_url="https://api.indec.gob.ar/ayuda/terminos",
+            allowed_purposes=("consulta", "reutilizacion estadistica sujeta a revision"),
+            redistribution_allowed=True,
+            commercial_use_allowed=False,
+            attribution_required=True,
+            integrity_required=True,
+        ),
+        scope_note=(
+            "The API landing page permits copying, reuse and redistribution when the primary "
+            "source is cited; the FAQ requires visible INDEC attribution. The API-specific "
+            "terms do not identify a standard license or clearly settle commercial reuse. "
+            "This conservative metadata-only record does not approve data snapshots or public "
+            "redistribution until each table's methodology, scope and applicable terms are "
+            "reviewed. Commercial permission is not established by this record."
+        ),
+    ),
 )
 
 

@@ -125,6 +125,18 @@ The MCP framework and protocol revision, REST framework, web framework, data sto
 - [ ] Capture and inspect a bounded live Georef provinces snapshot before publishing data.
 - [ ] Deploy to an approved public host with HTTPS, hostname, durable storage and successful REST/MCP smoke tests.
 
+## INDEC source assessment — 2026-11-02
+
+- [x] Review the upstream `indec-api-skill` repository, MIT license, API query behavior and documented 19-table catalog.
+- [x] Verify the official INDEC catalog, FAQ and current terms; record authentication, token expiry, attribution and aggregate-data constraints.
+- [x] Add `indec.api-catalog` to the runtime source registry as metadata-only with custom terms; no table contents are approved for public snapshots.
+- [x] Document the upstream skill's useful query constraints: mixed-case columns, route names, 1,000-row cap, full-PK pagination, 206 partial responses, dimension discovery and statistical null markers.
+- [x] Document why a public proxy is disabled until caller authentication, quota controls, audit logging and secret management exist.
+- [x] Document optional Understand Anything usage and exclude its generated graph from Git.
+- [ ] Implement a fixed-host, bounded INDEC adapter after obtaining an operator-managed token and completing table-specific methodology/license review.
+- [ ] Add caller authentication and per-caller budgets before enabling INDEC queries through public REST or MCP.
+- [ ] Validate the selected INDEC tables with real responses and fixtures, including suppressed/provisional markers and mixed-case field names.
+
 ## Delivery and deployment boundary
 
 The executable code path is implemented and container-build verified. No public dataset snapshot has been ingested yet, and no public service is deployed. Pethost currently reports that the connected account has no plan/machine; Netlify has no project configured. A source-control merge or successful Docker build is not a production deployment.

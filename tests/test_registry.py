@@ -31,11 +31,25 @@ def test_registry_records_bcra_custom_terms_without_approving_redistribution():
     assert result.allowed_purposes == ("informational", "educational", "academic")
 
 
+def test_registry_records_indec_as_metadata_only_until_table_review():
+    source = get_source("indec.api-catalog")
+    assert source.status == SourceStatus.METADATA_ONLY
+    assert source.license_class == LicenseClass.CUSTOM_TERMS
+    assert source.custom_terms is not None
+    assert source.custom_terms.redistribution_allowed
+    assert not source.custom_terms.commercial_use_allowed
+    result = assess_reuse(source.license_class, custom_terms=source.custom_terms)
+    assert result.redistributable
+    assert not result.commercial_use
+    assert result.attribution_required
+
+
 def test_registry_lists_sources_in_stable_order():
     sources = list_sources()
     assert [source.source_id for source in sources] == [
         "bcra.website-content",
         "georef.territories",
+        "indec.api-catalog",
     ]
 
 
