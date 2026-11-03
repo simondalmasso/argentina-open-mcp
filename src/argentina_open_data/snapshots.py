@@ -87,9 +87,11 @@ class SnapshotStore:
                     os.fsync(handle.fileno())
                 try:
                     os.link(temporary_name, destination)
-                except FileExistsError:
+                except FileExistsError as exc:
                     if destination.read_bytes() != payload:
-                        raise SnapshotError("concurrent snapshot write produced different bytes")
+                        raise SnapshotError(
+                            "concurrent snapshot write produced different bytes"
+                        ) from exc
             finally:
                 Path(temporary_name).unlink(missing_ok=True)
 

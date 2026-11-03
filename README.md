@@ -4,7 +4,7 @@
 
 Argentina Open Data es una plataforma pública para descubrir, consultar, comparar y reutilizar datos de Argentina. Argentina Open MCP es su interfaz para agentes y desarrolladores. Ambos productos comparten un kernel de datos y un contrato de respuesta; ninguno depende de que el otro exista.
 
-> Estado: kernel de datos y primer adaptador territorial implementados; no hay todavía API REST/MCP ni aplicación web desplegadas. La rama de trabajo contiene contratos canónicos, comparabilidad con warnings, registro de fuentes y perfil Georef. Las fuentes, sus licencias y su granularidad se incorporan únicamente después de una verificación por dataset.
+> Estado: kernel, API REST, servidor MCP, interfaz web inicial y pipeline de snapshots implementados. El repositorio incluye una ingesta manual y acotada de Georef. Todavía no hay snapshots de datos publicados ni un despliegue público. Las fuentes, sus licencias y su granularidad se incorporan únicamente después de una verificación por dataset.
 
 ## Principios no negociables
 
@@ -80,7 +80,7 @@ Compose comparte el volumen de snapshots entre REST y MCP. La ingesta es un perf
 1. **Argentina Open Data:** buscador y catálogo, fichas metodológicas, mapas, series, comparadores, descargas y estado verificable de fuentes.
 2. **Argentina Open MCP:** herramientas MCP acotadas y REST `/api/v1` para descubrir indicadores, consultar observaciones, comparar territorios y recuperar procedencia.
 
-La lista de herramientas y los proveedores de ejecución se definirán después de probar contratos y fuentes reales. No se fija todavía un framework MCP ni un proveedor de hosting.
+La API usa FastAPI y el servidor de agentes usa el SDK oficial MCP 2.3.0 sobre Streamable HTTP. Ambos procesos comparten snapshots locales. El proveedor de hosting sigue siendo reemplazable.
 
 ## Estado del trabajo
 
