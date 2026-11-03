@@ -1,0 +1,72 @@
+from datetime import datetime, timezone
+
+import pytest
+from pydantic import ValidationError
+
+from argentina_open_data.contracts import (
+    AggregationPolicy,
+    Coverage,
+    GeoLevel,
+    IndicatorMetadata,
+    Observation,
+    Provenance,
+)
+
+
+def metadata(**overrides):
+    values = {
+        "indicator_id": "employment.private_formal",
+        "name": "Empleo privado formal",
+        "unit": "puestos",
+        "frequency": "monthly",
+        "available_geo_levels": (GeoLevel.DEPARTMENT,),
+        "aggregation_policy": AggregationPolicy.SUM_ALLOWED,
+        "coverage": Coverage(
+            scope="Empleo privado registrado; no incluye informalidad ni empleo público"
+        ),
+        "provenance": Provenance(
+            source_id="ode",
+            source_name="Observatorio de Empleo y Dinámica Empresarial",
+            source_url="https://www.argentina.gob.ar/trabajo/estadisticas",
+            license_id="dataset-specific-review-required",
+            retrieved_at=datetime(2026, 11, 2, tzinfo=timezone.utc),
+        ),
+    }
+    values.update(overrides)
+    return IndicatorMetadata(**values)
+
+
+def test_metadata_rejects_unknown_fields():
+    with pytest.raises(ValidationError):
+        metadata(unreviewed_license_claim="CC-BY-4.0")
+
+
+def test_provenance_requires_timezone_and_valid_snapshot_hash():
+    with pytest.raises(ValidationError):
+        Provenance(
+            source_id="ode",
+            source_name="ODE",
+            source_url="https://example.org/data",
+            license_id="unknown",
+            retrieved_at=datetime(2026, 11, 2),
+        )
+    with pytest.raises(ValidationError):
+        Provenance(
+            source_id="ode",
+            source_name="ODE",
+            source_url="https://example.org/data",
+            license_id="unknown",
+            retrieved_at=datetime(2026, 11, 2, tzinfo=timezone.utc),
+            snapshot_sha256="not-a-hash",
+        )
+
+
+def test_observation_keeps_period_and_territorial_level_explicit():
+    observation = Observation(
+        period="2026-09",
+        value=1234,
+        geo_id="82.084",
+        geo_level=GeoLevel.DEPARTMENT,
+    )
+    assert observation.period == "2026-09"
+    assert observation.geo_level == GeoLevel.DEPARTMENT
