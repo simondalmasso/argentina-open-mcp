@@ -61,6 +61,16 @@ def test_provenance_requires_timezone_and_valid_snapshot_hash():
         )
 
 
+def test_observation_rejects_non_finite_numeric_values():
+    with pytest.raises(ValidationError):
+        Observation(
+            period="2026-09",
+            value=float("nan"),
+            geo_id="82.084",
+            geo_level=GeoLevel.DEPARTMENT,
+        )
+
+
 def test_observation_keeps_period_and_territorial_level_explicit():
     observation = Observation(
         period="2026-09",
