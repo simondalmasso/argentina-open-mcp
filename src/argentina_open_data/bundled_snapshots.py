@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import hashlib
-from importlib.resources import files
 from collections.abc import Iterator
+from importlib.resources import files
 from pathlib import PurePosixPath
 
 from argentina_open_data.snapshots import (
