@@ -102,7 +102,7 @@ jobs:
 
           def verify_mcp():
               base = "http://127.0.0.1:8001/mcp"
-              initialized = post_json(base, {
+              initialize_request = {
                   "jsonrpc": "2.0",
                   "id": 1,
                   "method": "initialize",
@@ -111,7 +111,18 @@ jobs:
                       "capabilities": {},
                       "clientInfo": {"name": "ci-smoke", "version": "1.0"},
                   },
-              })
+              }
+              deadline = time.monotonic() + 60
+              last_error = None
+              while time.monotonic() < deadline:
+                  try:
+                      initialized = post_json(base, initialize_request)
+                      break
+                  except (OSError, urllib.error.URLError, ValueError) as exc:
+                      last_error = exc
+                      time.sleep(1)
+              else:
+                  raise AssertionError("MCP server did not become ready") from last_error
               assert "result" in initialized, initialized
               listed = post_json(base, {
                   "jsonrpc": "2.0",
