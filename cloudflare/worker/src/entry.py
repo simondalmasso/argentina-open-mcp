@@ -23,10 +23,11 @@ def _get_app():
 
     # Import only after the first request enters the running Worker. Importing
     # mcp_server constructs MCPServer, which needs runtime entropy.
+    from mcp.server.transport_security import TransportSecuritySettings
+
     from argentina_open_data import api as api_module
     from argentina_open_data import mcp_server as mcp_module
     from argentina_open_data.bundled_snapshots import BundledSnapshotStore
-    from mcp.server.transport_security import TransportSecuritySettings
 
     store = BundledSnapshotStore()
     api_module.store = store
