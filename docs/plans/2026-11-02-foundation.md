@@ -94,3 +94,24 @@
 ## Deferred decisions
 
 The MCP framework and protocol revision, REST framework, web framework, data storage, geographic crosswalk source, dataset-specific license approvals, ingestion scheduler, hosting and domain remain open until source and compatibility proofs are completed.
+
+
+### Task 6: Governance hardening and evidence-backed source registry
+
+**Files:**
+- Update: `src/argentina_open_data/licensing.py`, `contracts.py`, `comparability.py`
+- Create: `src/argentina_open_data/registry.py`, `tests/test_registry.py`
+- Update: `docs/governance/data-and-licenses.md`, `docs/architecture/overview.md`, `README.md`
+- Create: `docs/sources/registry.md`, `docs/sources/bcra.md`
+
+- [x] Add custom terms with mandatory evidence URL, purposes, attribution, integrity, redistribution, commercial-use and share-alike controls; default to quarantine when evidence is absent.
+- [x] Replace free-form frequency with annual, quarterly and monthly values; validate canonical `YYYY`, `YYYY-QN` and `YYYY-MM` periods.
+- [x] Match each observation period granularity against the indicator frequency.
+- [x] Separate blocking comparability failures from non-blocking coverage and quality warnings.
+- [x] Create an evidence-backed registry with Georef as verified and BCRA institutional-site content as metadata-only.
+- [x] Document why unreviewed sources and the unverified Tucumán license claim remain out of the approved registry.
+- [ ] Verify the full Python matrix and Ruff in GitHub Actions before merging.
+
+## Delivery and deployment boundary
+
+This repository still has no REST/MCP runtime, web frontend, deployment manifest, hosting target, domain or runtime credentials. Do not claim an application deployment until a deployable product surface and destination are selected and verified. Merging the kernel into `main` is a source-control release, not a production deployment.

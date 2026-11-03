@@ -18,7 +18,9 @@ If license evidence is missing or ambiguous, quarantine the data. A public catal
 
 Licenses are recorded per dataset and per generated artifact, not inferred from the portal domain. A portal may host resources with different terms. `CC-BY-4.0`, `CC-BY-SA-4.0`, `ODbL`, non-commercial terms, all-rights-reserved notices and unknown terms are not interchangeable.
 
-The initial code uses a deliberately conservative classifier. It is an engineering gate, not legal advice and not a substitute for reviewing the actual license text, attribution requirements, database rights, exceptions and jurisdiction. Combining datasets with different share-alike regimes requires an explicit compatibility analysis; no blanket repository-wide data license is assumed.
+The code uses a deliberately conservative classifier and a versioned source registry. Standard licenses and custom terms remain distinct: custom terms require a valid evidence URL, an explicit purpose scope and separate redistribution, commercial-use, attribution, integrity and share-alike flags. Missing custom-term evidence means quarantine. The BCRA institutional-site notice is recorded as metadata-only: informational, educational and academic reuse requires full attribution and preservation of meaning/context and integrity; commercial use requires prior express authorization; bulk redistribution is not enabled by this registry record. The notice applies to the institutional site, not automatically to every API or externally sourced dataset.
+
+This is an engineering gate, not legal advice and not a substitute for reviewing the actual license text, attribution requirements, database rights, exceptions and jurisdiction. Combining datasets with different share-alike regimes requires an explicit compatibility analysis; no blanket repository-wide data license is assumed. See the [source registry](../sources/registry.md) and [BCRA source policy profile](../sources/bcra.md).
 
 Software license: Apache-2.0. Dataset and third-party asset licenses remain independent.
 

@@ -19,7 +19,7 @@ flowchart TD
   KERNEL --> REST[Public REST API]
 ```
 
-The diagram describes the intended logical flow, not deployed infrastructure. No source connector or runtime service is claimed to exist yet.
+The diagram describes the intended logical flow, not deployed infrastructure. A bounded, read-only Georef retrieval adapter exists, but it has not been used to ingest immutable snapshots or serve a production dataset.
 
 ## Kernel responsibilities
 
@@ -27,7 +27,9 @@ The diagram describes the intended logical flow, not deployed infrastructure. No
 - Enforce source-declared geographic levels and aggregation policies.
 - Preserve dataset-level license and attribution metadata.
 - Distinguish source values from transformations, estimates and derived values.
-- Return structured warnings and bounded, paginated results through every transport.
+- Return structured comparison warnings separately from blocking comparability failures; callers must preserve both in REST, MCP and web outputs.
+- Validate canonical annual (`YYYY`), quarterly (`YYYY-QN`) and monthly (`YYYY-MM`) periods against the indicator frequency.
+- Resolve source reuse decisions through the evidence-backed registry rather than inferring permissions from a publisher or portal.
 
 The kernel does not fetch arbitrary URLs, scrape websites, infer missing values, or silently aggregate statistical samples.
 

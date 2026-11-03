@@ -28,4 +28,5 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+# Long URLs and policy text may exceed the source-code line target; keep other lint checks strict.
 ignore = ["E501"]

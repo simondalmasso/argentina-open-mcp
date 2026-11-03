@@ -4,7 +4,7 @@
 
 Argentina Open Data es una plataforma pública para descubrir, consultar, comparar y reutilizar datos de Argentina. Argentina Open MCP es su interfaz para agentes y desarrolladores. Ambos productos comparten un kernel de datos y un contrato de respuesta; ninguno depende de que el otro exista.
 
-> Estado: fase de cimientos. El repositorio todavía no contiene conectores de producción, datasets descargados ni servicios desplegados. Las fuentes, sus licencias y su granularidad se incorporan únicamente después de una verificación por dataset.
+> Estado: kernel de datos y primer adaptador territorial implementados; no hay todavía API REST/MCP ni aplicación web desplegadas. La rama de trabajo contiene contratos canónicos, comparabilidad con warnings, registro de fuentes y perfil Georef. Las fuentes, sus licencias y su granularidad se incorporan únicamente después de una verificación por dataset.
 
 ## Principios no negociables
 
@@ -22,12 +22,13 @@ src/argentina_open_data/  # Kernel y contratos compartidos
   contracts.py            # Modelos canónicos de datos, territorio y procedencia
   comparability.py        # Reglas de comparación territorial
   licensing.py            # Evaluación conservadora de reutilización
+  registry.py              # Registro versionado de fuentes y evidencias
   sources/georef.py       # Cliente de lectura Georef v2
 
 tests/                    # Contratos y reglas del kernel
 docs/architecture/        # Límites y decisiones de arquitectura
 docs/governance/          # Procedencia, cobertura y política de licencias
-docs/sources/             # Perfiles verificados de fuentes
+docs/sources/             # Registro y perfiles de fuentes con evidencia
 docs/plans/               # Hoja de ruta ejecutable
 .github/workflows/        # CI
 ```
@@ -53,7 +54,7 @@ La lista de herramientas y los proveedores de ejecución se definirán después 
 
 ## Estado del trabajo
 
-Consultar [la arquitectura](docs/architecture/overview.md), [la política de datos y licencias](docs/governance/data-and-licenses.md), [el perfil de Georef](docs/sources/georef.md) y [el plan de implementación](docs/plans/2026-11-02-foundation.md).
+Consultar [la arquitectura](docs/architecture/overview.md), [la política de datos y licencias](docs/governance/data-and-licenses.md), [el registro de fuentes](docs/sources/registry.md), [el perfil de Georef](docs/sources/georef.md), [el perfil BCRA](docs/sources/bcra.md) y [el plan de implementación](docs/plans/2026-11-02-foundation.md).
 
 ## Licencia del software
 
