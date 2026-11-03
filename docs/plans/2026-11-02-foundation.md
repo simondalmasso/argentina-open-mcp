@@ -74,6 +74,23 @@
 - [x] Document product boundaries, contract, territorial rules, provenance, license admission and deferred infrastructure decisions.
 - [x] GitHub Actions verified pytest and Ruff successfully on Python 3.11, 3.12 and 3.13 (run 41557469584). Local pytest: 11 passed; local Ruff unavailable in the isolated environment.
 
+### Task 5: First verified territorial source adapter — Georef v2
+
+**Files:**
+- Create: `src/argentina_open_data/sources/georef.py`
+- Create: `tests/test_georef.py`
+- Create: `docs/sources/georef.md`
+
+**Interfaces:**
+- `GeorefClient.list(resource, limit=100, offset=0, province_id=None) -> GeorefPage`
+- `GeorefRecord.to_territory() -> Territory`
+- Read-only resources: provinces, departments, municipalities and localities.
+
+- [x] Verify the official v2 OpenAPI server, resource names, attribution, license and published quotas.
+- [x] Add fixture-based tests for pagination, official IDs, parent links, malformed responses, response-size limits and request throttling.
+- [x] Implement a fixed-host HTTPS GET client with bounded timeout, payload size and conservative per-instance request spacing.
+- [x] Verify the full test suite locally and through CI.
+
 ## Deferred decisions
 
 The MCP framework and protocol revision, REST framework, web framework, data storage, geographic crosswalk source, dataset-specific license approvals, ingestion scheduler, hosting and domain remain open until source and compatibility proofs are completed.
