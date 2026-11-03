@@ -19,12 +19,12 @@ store = SnapshotStore()
 
 
 @app.get("/health")
-def health() -> dict[str, str]:
+async def health() -> dict[str, str]:
     return {"status": "ok", "service": "argentina-open-data"}
 
 
 @app.get("/api/v1/sources")
-def sources() -> dict:
+async def sources() -> dict:
     return {
         "data": [source.model_dump(mode="json") for source in list_sources()],
         "count": len(list_sources()),
@@ -32,7 +32,7 @@ def sources() -> dict:
 
 
 @app.get("/api/v1/snapshots")
-def snapshots() -> dict:
+async def snapshots() -> dict:
     manifests = store.list_manifests()
     return {
         "data": [manifest.model_dump(mode="json") for manifest in manifests],
@@ -64,7 +64,7 @@ def _latest_territories(resource: str) -> tuple[list[dict], dict]:
 
 
 @app.get("/api/v1/territories")
-def territories(
+async def territories(
     resource: str = Query(default="provincias", pattern="^(provincias|departamentos|municipios|localidades)$"),
     q: str | None = Query(default=None, max_length=100),
     limit: int = Query(default=100, ge=1, le=1000),
@@ -82,7 +82,7 @@ def territories(
 
 
 @app.get("/api/v1/territories/{geo_id}")
-def territory(geo_id: str) -> dict:
+async def territory(geo_id: str) -> dict:
     for resource in ("provincias", "departamentos", "municipios", "localidades"):
         manifests = tuple(
             item
@@ -107,6 +107,6 @@ def territory(geo_id: str) -> dict:
 
 
 @app.get("/", response_class=HTMLResponse)
-def home() -> str:
+async def home() -> str:
     page = files("argentina_open_data").joinpath("web/index.html").read_text(encoding="utf-8")
     return page
