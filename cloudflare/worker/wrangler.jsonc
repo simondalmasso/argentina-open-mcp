@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "arg-open",
+  "main": "src/entry.py",
+  "compatibility_date": "2026-11-03",
+  "compatibility_flags": ["python_workers"],
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  }
+}
