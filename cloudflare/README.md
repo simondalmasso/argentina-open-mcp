@@ -5,9 +5,11 @@ This deployment uses one Python Worker named `arg-open` for the public web page,
 ## Why one Worker
 
 - FastAPI serves the existing REST routes and the packaged homepage.
-- The existing Python MCP server is mounted as a stateless Streamable HTTP ASGI application at `/mcp`.
+- The Python MCP server is mounted as a stateless Streamable HTTP ASGI application at `/mcp/`. Each request gets a fresh MCP server and one-shot session manager because the Workers ASGI adapter owns application lifespan per request.
 - Both interfaces use the same `BundledSnapshotStore`, the same Pydantic contracts and the same reviewed Georef snapshot.
 - The first release packages the 24-province snapshot as immutable application data. It does not write to a Worker filesystem, call Georef at request time or need an R2 bucket. New datasets are added through reviewed data updates and a new deploy. R2 is the next storage step if dataset size or refresh cadence warrants it.
+
+All public FastAPI handlers and MCP tools are asynchronous. Cloudflare Workers do not provide a Python threadpool, so synchronous handlers must not be added to this app. MCP construction is deferred until the first request because Cloudflare blocks access to entropy during module initialization. The MCP server is stateless and constructed per request: its session manager only supports one lifecycle run, while the Workers ASGI adapter starts and stops application lifespan per request.
 
 Cloudflare Python Workers require Python 3.13 and the `python_workers` compatibility flag. Python Workers are currently in open beta. Cloudflare's free Workers plan currently publishes request, CPU and bundle-size limits; confirm the live limits before scaling beyond this read-only catalogue.
 
@@ -36,7 +38,7 @@ The CI job starts the actual local Cloudflare runtime and smoke-tests the homepa
 
 To deploy the existing `arg-open` Worker from GitHub Actions, configure these repository settings:
 
-- **Secret** `CLOUDFLARE_API_TOKEN`: a scoped Cloudflare API token with Account → Workers Scripts → Edit and Account → Account Settings → Read on the account that owns the current `workers.dev` subdomain.
+- **Secret** `CLOUDFLARE_API_TOKEN`: a Cloudflare API token with the **Workers Editor** role scoped to the existing `arg-open` Worker. This is sufficient to update and deploy that Worker without granting access to every Worker in the account.
 - **Variable** `CLOUDFLARE_ACCOUNT_ID`: that account's Account ID.
 
 The token is stored only in GitHub Actions Secrets. Do not commit it, paste it into the repository, or add it to `.env`.
