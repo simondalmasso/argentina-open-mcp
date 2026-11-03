@@ -34,6 +34,7 @@ packages = ["src/argentina_open_data"]
 include = [
   "src/argentina_open_data/**/*.py",
   "src/argentina_open_data/web/*.html",
+  "src/argentina_open_data/seed_snapshots/**/*.json",
 ]
 
 [tool.pytest.ini_options]
