@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from argentina_open_data.contracts import AggregationPolicy, GeoLevel, IndicatorMetadata, Observation
+from argentina_open_data.contracts import (
+    AggregationPolicy,
+    GeoLevel,
+    IndicatorMetadata,
+    Observation,
+)
 
 
 @dataclass(frozen=True)
