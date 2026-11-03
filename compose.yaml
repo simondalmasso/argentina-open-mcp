@@ -1,4 +1,14 @@
 services:
+  snapshot-seed:
+    build: .
+    command: ["python", "-m", "argentina_open_data.seed_snapshots"]
+    environment:
+      SNAPSHOT_DIR: /app/data/snapshots
+      SNAPSHOT_SEED_DIR: /app/seed-snapshots
+    volumes:
+      - snapshots:/app/data/snapshots
+    restart: "no"
+
   api:
     build: .
     command: ["uvicorn", "argentina_open_data.api:app", "--host", "0.0.0.0", "--port", "8000"]
@@ -8,6 +18,9 @@ services:
       - "8000:8000"
     volumes:
       - snapshots:/app/data/snapshots
+    depends_on:
+      snapshot-seed:
+        condition: service_completed_successfully
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
@@ -28,6 +41,9 @@ services:
       - "8001:8001"
     volumes:
       - snapshots:/app/data/snapshots
+    depends_on:
+      snapshot-seed:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   ingest-georef:

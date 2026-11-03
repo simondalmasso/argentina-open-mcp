@@ -122,7 +122,8 @@ The MCP framework and protocol revision, REST framework, web framework, data sto
 - [x] Run REST and MCP as separate processes sharing the same snapshot volume.
 - [x] Add Dockerfile, Docker Compose services and a manual ingestion profile.
 - [x] Verify 48 tests and Ruff on Python 3.11, 3.12 and 3.13; validate Compose and build the production image in GitHub Actions run 41561596744.
-- [ ] Capture and inspect a bounded live Georef provinces snapshot before publishing data.
+- [x] Capture and inspect the bounded live Georef v2 provinces response (24 records, including Santa Fe ID `82`); preserve the official identifiers, names, centroid payloads, attribution and CC BY 4.0 evidence in a SHA-256-addressed snapshot.
+- [x] Bundle the immutable provinces snapshot in the Docker image and seed the named runtime volume idempotently before REST and MCP start; verify the snapshot hash, record count and Santa Fe lookup in CI.
 - [ ] Deploy to an approved public host with HTTPS, hostname, durable storage and successful REST/MCP smoke tests.
 
 ## INDEC source assessment — 2026-11-02
@@ -139,4 +140,4 @@ The MCP framework and protocol revision, REST framework, web framework, data sto
 
 ## Delivery and deployment boundary
 
-The executable code path is implemented and container-build verified. No public dataset snapshot has been ingested yet, and no public service is deployed. Pethost currently reports that the connected account has no plan/machine; Netlify has no project configured. A source-control merge or successful Docker build is not a production deployment.
+The repository now includes one bounded, verified Georef v2 provinces snapshot (24 records) under CC BY 4.0 with attribution, bundled into the container image and imported into the durable named volume by an idempotent one-shot Compose job. CI verifies the Python matrix, snapshot digest, record count, territory lookup, MCP tool discovery and tool call, plus REST/MCP behavior after process restart. No public API/MCP service is deployed: the supplied `workers.dev` URL currently returns `Hello World!`. The connected Pethost account has no plan or machine; Netlify has no site and the connected DigitalOcean account has no droplets. The public deployment remains blocked on an approved hosting target and deployment access; a source-control merge or successful container test is not a production deployment.
