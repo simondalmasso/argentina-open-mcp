@@ -112,6 +112,19 @@ The MCP framework and protocol revision, REST framework, web framework, data sto
 - [x] Document why unreviewed sources and the unverified Tucumán license claim remain out of the approved registry.
 - [x] Verify the full Python matrix and Ruff in GitHub Actions before merging (PR #1).
 
+## Runtime milestone — 2026-11-03
+
+- [x] Add content-addressed immutable snapshot storage with SHA-256 verification.
+- [x] Add bounded, explicit Georef snapshot capture; no automatic ingestion at startup or request time.
+- [x] Add FastAPI REST endpoints for health, source registry, snapshots and territorial search/detail.
+- [x] Add a browser UI that consumes REST and renders an honest empty state before ingestion.
+- [x] Add official MCP Python SDK 2.3.0 tools over Streamable HTTP.
+- [x] Run REST and MCP as separate processes sharing the same snapshot volume.
+- [x] Add Dockerfile, Docker Compose services and a manual ingestion profile.
+- [x] Verify 48 tests and Ruff on Python 3.11, 3.12 and 3.13; validate Compose and build the production image in GitHub Actions run 41561596744.
+- [ ] Capture and inspect a bounded live Georef provinces snapshot before publishing data.
+- [ ] Deploy to an approved public host with HTTPS, hostname, durable storage and successful REST/MCP smoke tests.
+
 ## Delivery and deployment boundary
 
-This repository still has no REST/MCP runtime, web frontend, deployment manifest, hosting target, domain or runtime credentials. Do not claim an application deployment until a deployable product surface and destination are selected and verified. Merging the kernel into `main` is a source-control release, not a production deployment.
+The executable code path is implemented and container-build verified. No public dataset snapshot has been ingested yet, and no public service is deployed. Pethost currently reports that the connected account has no plan/machine; Netlify has no project configured. A source-control merge or successful Docker build is not a production deployment.
