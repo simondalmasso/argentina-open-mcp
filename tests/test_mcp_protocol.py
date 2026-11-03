@@ -8,7 +8,7 @@ from argentina_open_data import mcp_server
 
 def test_mcp_protocol_lists_and_invokes_tools():
     async def exercise():
-        async with Client(mcp_server.mcp) as client:
+        async with Client(mcp_server.create_mcp_server()) as client:
             tools = await client.list_tools()
             names = {tool.name for tool in tools.tools}
             assert {

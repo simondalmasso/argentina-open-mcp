@@ -126,6 +126,21 @@ The MCP framework and protocol revision, REST framework, web framework, data sto
 - [x] Bundle the immutable provinces snapshot in the Docker image and seed the named runtime volume idempotently before REST and MCP start; verify the snapshot hash, record count and Santa Fe lookup in CI.
 - [ ] Deploy to an approved public host with HTTPS, hostname, durable storage and successful REST/MCP smoke tests.
 
+## Cloudflare edge runtime validation — 2026-11-03
+
+- [x] Add a Python Worker entrypoint for the existing FastAPI homepage and REST API, plus stateless MCP Streamable HTTP.
+- [x] Package the reviewed 24-province Georef snapshot as an immutable Python package resource; do not rely on a persistent Worker filesystem or an R2 bucket for the initial catalogue.
+- [x] Add a read-only bundled snapshot store with SHA-256 verification and path traversal protection.
+- [x] Make public REST handlers and MCP tools asynchronous so the runtime does not depend on threadpool support.
+- [x] Defer MCP server construction until the first request because Workers block entropy during module initialization.
+- [x] Create one stateless MCP server per request because the Workers ASGI adapter starts/stops app lifespan per request and the MCP session manager is single-use.
+- [x] Validate the actual local Cloudflare runtime: homepage, REST health/snapshot/territory lookup, MCP initialize, tools/list and tools/call. Use the canonical mounted endpoint `/mcp/`.
+- [x] Verify Python 3.11/3.12/3.13 tests, Ruff, Docker build, Compose configuration and REST/MCP persistence smoke test after the Cloudflare changes (CI run 41579476876).
+- [x] Add a manually triggered production deploy workflow that updates the existing `arg-open` Worker and runs post-deploy smoke checks; pushes and pull requests do not deploy production.
+- [ ] Configure the GitHub repository secret `CLOUDFLARE_API_TOKEN` with Workers Editor scoped to the existing `arg-open` Worker and variable `CLOUDFLARE_ACCOUNT_ID`.
+- [ ] Run the production deploy workflow and verify `https://arg-open.simondalmasso44.workers.dev` end-to-end.
+- [ ] Review live Cloudflare plan limits and observed usage before adding larger datasets or external storage such as R2.
+
 ## INDEC source assessment — 2026-11-02
 
 - [x] Review the upstream `indec-api-skill` repository, MIT license, API query behavior and documented 19-table catalog.
@@ -140,4 +155,4 @@ The MCP framework and protocol revision, REST framework, web framework, data sto
 
 ## Delivery and deployment boundary
 
-The repository now includes one bounded, verified Georef v2 provinces snapshot (24 records) under CC BY 4.0 with attribution, bundled into the container image and imported into the durable named volume by an idempotent one-shot Compose job. CI verifies the Python matrix, snapshot digest, record count, territory lookup, MCP tool discovery and tool call, plus REST/MCP behavior after process restart. No public API/MCP service is deployed: the supplied `workers.dev` URL currently returns `Hello World!`. The connected Pethost account has no plan or machine; Netlify has no site and the connected DigitalOcean account has no droplets. The public deployment remains blocked on an approved hosting target and deployment access; a source-control merge or successful container test is not a production deployment.
+The repository includes one bounded, verified Georef v2 provinces snapshot (24 records) under CC BY 4.0 with attribution. Docker Compose imports it idempotently into a durable named volume. A Python Cloudflare Worker now serves the homepage, REST API and stateless MCP endpoint from package-bundled read-only data; its actual local runtime is CI-verified, as are all three Python versions, Ruff, Docker build and the native REST/MCP smoke test. The Worker has not been deployed to production: the supplied `workers.dev` URL still returns `Hello World!`. The manual deploy workflow is ready but requires a GitHub secret `CLOUDFLARE_API_TOKEN` with Workers Editor scoped to the existing `arg-open` Worker and a repository variable `CLOUDFLARE_ACCOUNT_ID`. No R2 bucket, paid hosting plan or new compute instance is required for the initial 24-province catalogue. Production publication remains the only release blocker; a locally verified runtime or source-control merge is not a production deployment.

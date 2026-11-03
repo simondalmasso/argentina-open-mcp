@@ -162,3 +162,126 @@ jobs:
           verify_rest()
           verify_mcp()
           PY
+
+  cloudflare-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install uv
+        run: python -m pip install uv
+      - name: Resolve Cloudflare Worker dependencies
+        run: uv sync --project cloudflare/worker --all-groups
+      - name: Start the local Cloudflare runtime
+        run: |
+          set -euo pipefail
+          cd cloudflare/worker
+          uv run pywrangler dev --ip 127.0.0.1 --port 8787 > worker.log 2>&1 &
+          worker_pid=$!
+          cleanup() {
+            status=$?
+            if [ "$status" -ne 0 ]; then
+              echo "::group::Cloudflare Worker startup log"
+              cat worker.log || true
+              echo "::endgroup::"
+            fi
+            kill "$worker_pid" 2>/dev/null || true
+            wait "$worker_pid" 2>/dev/null || true
+            exit "$status"
+          }
+          trap cleanup EXIT
+          python - <<'PY'
+          import json
+          import time
+          import urllib.error
+          import urllib.request
+
+          BASE = "http://127.0.0.1:8787"
+
+          def request_json(path, payload=None):
+              if payload is None:
+                  request = urllib.request.Request(BASE + path)
+              else:
+                  body = json.dumps(payload).encode()
+                  request = urllib.request.Request(
+                      BASE + path,
+                      data=body,
+                      headers={
+                          "Content-Type": "application/json",
+                          "Accept": "application/json",
+                      },
+                      method="POST",
+                  )
+              with urllib.request.urlopen(request, timeout=10) as response:
+                  return json.loads(response.read().decode())
+
+          deadline = time.monotonic() + 90
+          last_error = None
+          while time.monotonic() < deadline:
+              try:
+                  assert request_json("/health")["status"] == "ok"
+                  break
+              except (OSError, urllib.error.URLError, ValueError, AssertionError) as exc:
+                  last_error = exc
+                  time.sleep(1)
+          else:
+              raise AssertionError("Cloudflare Worker did not become ready") from last_error
+
+          home = urllib.request.urlopen(BASE + "/", timeout=10).read().decode()
+          assert "Argentina Open Data" in home
+
+          snapshots = request_json("/api/v1/snapshots")
+          assert snapshots["count"] == 1, snapshots
+          assert snapshots["data"][0]["record_count"] == 24, snapshots
+
+          territory = request_json(
+              "/api/v1/territories?resource=provincias&q=Santa%20Fe"
+          )
+          assert territory["data"][0]["geo_id"] == "82", territory
+
+          initialized = request_json("/mcp/", {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "method": "initialize",
+              "params": {
+                  "protocolVersion": "2025-03-26",
+                  "capabilities": {},
+                  "clientInfo": {"name": "cloudflare-ci", "version": "1.0"},
+              },
+          })
+          assert "result" in initialized, initialized
+
+          listed = request_json("/mcp/", {
+              "jsonrpc": "2.0",
+              "id": 2,
+              "method": "tools/list",
+              "params": {},
+          })
+          tool_names = [item["name"] for item in listed["result"]["tools"]]
+          assert "search_territories" in tool_names, tool_names
+
+          called = request_json("/mcp/", {
+              "jsonrpc": "2.0",
+              "id": 3,
+              "method": "tools/call",
+              "params": {
+                  "name": "search_territories",
+                  "arguments": {
+                      "query": "Santa Fe",
+                      "resource": "provincias",
+                      "limit": 10,
+                  },
+              },
+          })
+          assert not called.get("result", {}).get("isError", False), called
+          result_text = next(
+              item["text"] for item in called["result"]["content"]
+              if item.get("type") == "text"
+          )
+          assert json.loads(result_text)["data"][0]["geo_id"] == "82"
+          PY

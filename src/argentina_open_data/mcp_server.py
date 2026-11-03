@@ -10,20 +10,17 @@ from mcp.server.transport_security import TransportSecuritySettings
 from argentina_open_data.registry import list_sources
 from argentina_open_data.snapshots import SnapshotStore
 
-mcp = MCPServer("Argentina Open MCP")
 store = SnapshotStore()
 
 
-@mcp.tool()
-def list_data_sources() -> dict:
+async def list_data_sources() -> dict:
     """List registered Argentine public-data sources, license status and evidence."""
     return {
         "sources": [source.model_dump(mode="json") for source in list_sources()]
     }
 
 
-@mcp.tool()
-def search_territories(
+async def search_territories(
     query: str = "",
     resource: str = "provincias",
     limit: int = 20,
@@ -63,8 +60,7 @@ def search_territories(
     }
 
 
-@mcp.tool()
-def get_territory(geo_id: str) -> dict:
+async def get_territory(geo_id: str) -> dict:
     """Retrieve one territory by its official Georef identifier from local snapshots."""
     if not geo_id or len(geo_id) > 100:
         return {"error": "invalid_geo_id"}
@@ -83,7 +79,22 @@ def get_territory(geo_id: str) -> dict:
     return {"error": "territory_not_found"}
 
 
+def create_mcp_server() -> MCPServer:
+    """Create a fresh stateless server instance for one Worker request.
+
+    Cloudflare's ASGI adapter starts and stops application lifespan for each
+    request. StreamableHTTPSessionManager.run() is single-use, so each request
+    gets its own stateless server/session manager instead of reusing one.
+    """
+    server = MCPServer("Argentina Open MCP")
+    server.tool()(list_data_sources)
+    server.tool()(search_territories)
+    server.tool()(get_territory)
+    return server
+
+
 def run() -> None:
+    """Run the standalone stateful process outside the Cloudflare Worker runtime."""
     host = os.getenv("MCP_HOST", "127.0.0.1")
     port = int(os.getenv("MCP_PORT", "8001"))
     if host in {"127.0.0.1", "localhost", "::1"}:
@@ -100,7 +111,7 @@ def run() -> None:
             allowed_hosts=allowed_hosts,
             allowed_origins=allowed_origins,
         )
-    mcp.run(
+    create_mcp_server().run(
         transport="streamable-http",
         host=host,
         port=port,
