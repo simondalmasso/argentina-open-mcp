@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import hashlib
 from importlib.resources import files
+from collections.abc import Iterator
 from pathlib import PurePosixPath
-from typing import Iterator
 
 from argentina_open_data.snapshots import (
     SnapshotDocument,
