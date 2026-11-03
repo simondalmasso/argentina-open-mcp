@@ -15,13 +15,13 @@ def _get_app():
     # Python Workers prohibit entropy during module initialization because their
     # startup memory is snapshotted. Defer imports and MCPServer construction to
     # the request handler, where a cryptographically secure runtime RNG is ready.
+    from mcp.server.transport_security import TransportSecuritySettings
     from starlette.applications import Starlette
     from starlette.routing import Mount
 
     from argentina_open_data import api as api_module
     from argentina_open_data import mcp_server as mcp_module
     from argentina_open_data.bundled_snapshots import BundledSnapshotStore
-    from mcp.server.transport_security import TransportSecuritySettings
 
     if _store is None:
         _store = BundledSnapshotStore()
