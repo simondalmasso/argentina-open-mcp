@@ -22,10 +22,12 @@ src/argentina_open_data/  # Kernel y contratos compartidos
   contracts.py            # Modelos canónicos de datos, territorio y procedencia
   comparability.py        # Reglas de comparación territorial
   licensing.py            # Evaluación conservadora de reutilización
+  sources/georef.py       # Cliente de lectura Georef v2
 
 tests/                    # Contratos y reglas del kernel
 docs/architecture/        # Límites y decisiones de arquitectura
 docs/governance/          # Procedencia, cobertura y política de licencias
+docs/sources/             # Perfiles verificados de fuentes
 docs/plans/               # Hoja de ruta ejecutable
 .github/workflows/        # CI
 ```
@@ -51,7 +53,7 @@ La lista de herramientas y los proveedores de ejecución se definirán después 
 
 ## Estado del trabajo
 
-Consultar [la arquitectura](docs/architecture/overview.md), [la política de datos y licencias](docs/governance/data-and-licenses.md) y [el plan de implementación](docs/plans/2026-11-02-foundation.md).
+Consultar [la arquitectura](docs/architecture/overview.md), [la política de datos y licencias](docs/governance/data-and-licenses.md), [el perfil de Georef](docs/sources/georef.md) y [el plan de implementación](docs/plans/2026-11-02-foundation.md).
 
 ## Licencia del software
 
