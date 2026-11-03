@@ -70,9 +70,9 @@
 **Files:**
 - Create: `.github/workflows/ci.yml`, `.gitignore`, `README.md`, `docs/architecture/overview.md`, `docs/governance/data-and-licenses.md`
 
-- [ ] Configure CI for Python 3.11, 3.12 and 3.13 with pytest and Ruff.
+- [x] Configure CI for Python 3.11, 3.12 and 3.13 with pytest and Ruff.
 - [x] Document product boundaries, contract, territorial rules, provenance, license admission and deferred infrastructure decisions.
-- [ ] Run the same test and lint commands locally and in GitHub Actions.
+- [x] GitHub Actions verified pytest and Ruff successfully on Python 3.11, 3.12 and 3.13 (run 41557469584). Local pytest: 11 passed; local Ruff unavailable in the isolated environment.
 
 ## Deferred decisions
 
