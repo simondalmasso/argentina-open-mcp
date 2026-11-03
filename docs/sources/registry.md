@@ -6,6 +6,7 @@ The runtime registry lives in `src/argentina_open_data/registry.py`. It is delib
 |---|---|---|---|---|
 | `georef.territories` | Servicio Georef, territorial reference resources | CC BY 4.0 | Verified for the resources covered by Georef's terms | [Official terms](https://www.argentina.gob.ar/georef/condiciones-de-uso-y-licencia) |
 | `bcra.website-content` | BCRA institutional website content | Custom terms | Metadata only; no bulk redistribution | [Official legal notice](https://www.bcra.gob.ar/aviso-legal/) |
+| `indec.api-catalog` | INDEC API catalog (19 table endpoints documented by the upstream skill) | Custom terms | Metadata only; table-level review required before snapshots or public redistribution | [Official terms](https://api.indec.gob.ar/ayuda/terminos), [FAQ](https://api.indec.gob.ar/ayuda/faq), [catalog](https://api.indec.gob.ar/) |
 
 ## Admission states
 
@@ -15,4 +16,4 @@ The runtime registry lives in `src/argentina_open_data/registry.py`. It is delib
 
 Custom terms must include a valid evidence URL, allowed purposes and explicit redistribution, commercial-use, attribution, integrity and share-alike conditions. Without that information, `assess_reuse(CUSTOM_TERMS)` returns a quarantine decision.
 
-Additional candidates such as INDEC products, OEDE datasets, provincial statistical portals, IGN and BAHRA are not pre-approved here. They enter the registry only after the exact resource and its current terms are reviewed. In particular, the CC BY-NC-SA claim previously associated with Tucumán has not been promoted to a source record because a primary source establishing its applicability to a specific dataset was not verified in this pass.
+Additional candidates such as OEDE datasets, provincial statistical portals, IGN and BAHRA are not pre-approved here. They enter the registry only after the exact resource and its current terms are reviewed. In particular, the CC BY-NC-SA claim previously associated with Tucumán has not been promoted to a source record because a primary source establishing its applicability to a specific dataset was not verified in this pass.
