@@ -244,7 +244,7 @@ jobs:
           )
           assert territory["data"][0]["geo_id"] == "82", territory
 
-          initialized = request_json("/mcp", {
+          initialized = request_json("/mcp/", {
               "jsonrpc": "2.0",
               "id": 1,
               "method": "initialize",
@@ -256,7 +256,7 @@ jobs:
           })
           assert "result" in initialized, initialized
 
-          listed = request_json("/mcp", {
+          listed = request_json("/mcp/", {
               "jsonrpc": "2.0",
               "id": 2,
               "method": "tools/list",
@@ -265,7 +265,7 @@ jobs:
           tool_names = [item["name"] for item in listed["result"]["tools"]]
           assert "search_territories" in tool_names, tool_names
 
-          called = request_json("/mcp", {
+          called = request_json("/mcp/", {
               "jsonrpc": "2.0",
               "id": 3,
               "method": "tools/call",
