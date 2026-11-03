@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
@@ -29,7 +29,7 @@ def metadata(**overrides):
             source_name="Observatorio de Empleo y Dinámica Empresarial",
             source_url="https://www.argentina.gob.ar/trabajo/estadisticas",
             license_id="dataset-specific-review-required",
-            retrieved_at=datetime(2026, 11, 2, tzinfo=timezone.utc),
+            retrieved_at=datetime(2026, 11, 2, tzinfo=UTC),
         ),
     }
     values.update(overrides)
@@ -56,7 +56,7 @@ def test_provenance_requires_timezone_and_valid_snapshot_hash():
             source_name="ODE",
             source_url="https://example.org/data",
             license_id="unknown",
-            retrieved_at=datetime(2026, 11, 2, tzinfo=timezone.utc),
+            retrieved_at=datetime(2026, 11, 2, tzinfo=UTC),
             snapshot_sha256="not-a-hash",
         )
 
