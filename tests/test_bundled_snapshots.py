@@ -1,6 +1,6 @@
 from argentina_open_data.bundled_snapshots import BundledSnapshotStore
-from argentina_open_data.snapshots import SnapshotError
 from argentina_open_data.contracts import GeoLevel
+from argentina_open_data.snapshots import SnapshotError
 
 
 def test_bundled_snapshot_store_exposes_verified_provinces():
