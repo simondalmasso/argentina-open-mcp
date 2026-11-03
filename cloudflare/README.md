@@ -28,7 +28,7 @@ Endpoints:
 - Web: http://127.0.0.1:8787/
 - Health: http://127.0.0.1:8787/health
 - REST/OpenAPI: http://127.0.0.1:8787/docs
-- MCP: http://127.0.0.1:8787/mcp
+- MCP: http://127.0.0.1:8787/mcp/
 
 The CI job starts the actual local Cloudflare runtime and smoke-tests the homepage, REST province search, MCP handshake, tool discovery and tool execution.
 
