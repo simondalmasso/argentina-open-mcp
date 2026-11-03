@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from importlib.resources import files
-from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse

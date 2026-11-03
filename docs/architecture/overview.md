@@ -61,3 +61,18 @@ FastMCP version, MCP protocol revision, REST framework, storage engine, batch sc
 - Keep secrets out of the repository and CI logs.
 - Do not ingest or expose person-level sensitive records when aggregate data meets the use case.
 - Publish only datasets whose reuse decision is recorded and machine-checked.
+
+
+## Executable vertical slice
+
+The current repository also includes three independently runnable surfaces over the same local snapshot store:
+
+- FastAPI REST service and browser UI (`argentina_open_data.api:app`).
+- Official MCP Python SDK 2.3.0 server using Streamable HTTP (`argentina-open mcp`).
+- Explicit Georef snapshot command (`argentina-open snapshot-georef`).
+
+REST and MCP read immutable local snapshots; neither tool call performs an implicit external fetch. The API exposes `/health`, `/api/v1/sources`, `/api/v1/snapshots`, `/api/v1/territories` and `/api/v1/territories/{geo_id}`. The web UI consumes the REST endpoints and shows an honest empty state when the first snapshot has not been captured.
+
+The MCP service is a separate process from REST. This avoids mounting a stateful MCP sub-application into a host ASGI lifespan incorrectly. It uses Streamable HTTP, and production deployments must explicitly configure `MCP_ALLOWED_HOSTS` (and browser origins, if applicable). The local default binds to loopback only. See the official [MCP Python SDK v2 documentation](https://py.sdk.modelcontextprotocol.io/).
+
+Snapshots are content-addressed JSON objects. The digest covers the canonical serialized document, including source records and normalized territory records. Existing objects are never overwritten; loads verify the digest before returning data. The current pipeline retains the complete per-record Georef response objects but not the byte-for-byte HTTP envelope/headers. This distinction must remain explicit in provenance.

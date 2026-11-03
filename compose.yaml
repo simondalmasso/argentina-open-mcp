@@ -1,0 +1,42 @@
+services:
+  api:
+    build: .
+    command: ["uvicorn", "argentina_open_data.api:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      SNAPSHOT_DIR: /app/data/snapshots
+    ports:
+      - "8000:8000"
+    volumes:
+      - snapshots:/app/data/snapshots
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  mcp:
+    build: .
+    command: ["argentina-open", "mcp"]
+    environment:
+      SNAPSHOT_DIR: /app/data/snapshots
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: 8001
+      MCP_ALLOWED_HOSTS: "localhost:*,127.0.0.1:*,mcp:*,mcp:8001"
+    ports:
+      - "8001:8001"
+    volumes:
+      - snapshots:/app/data/snapshots
+    restart: unless-stopped
+
+  ingest-georef:
+    build: .
+    profiles: ["ingest"]
+    entrypoint: ["argentina-open", "snapshot-georef"]
+    environment:
+      SNAPSHOT_DIR: /app/data/snapshots
+    volumes:
+      - snapshots:/app/data/snapshots
+
+volumes:
+  snapshots:

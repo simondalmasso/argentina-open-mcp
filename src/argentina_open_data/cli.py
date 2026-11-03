@@ -21,7 +21,7 @@ def main() -> None:
     snapshot.add_argument("--max-pages", type=int, default=1)
     snapshot.add_argument("--output", default=os.getenv("SNAPSHOT_DIR", "data/snapshots"))
 
-    mcp = subparsers.add_parser("mcp", help="Run the MCP Streamable HTTP server")
+    subparsers.add_parser("mcp", help="Run the MCP Streamable HTTP server")
 
     args = parser.parse_args()
     if args.command == "snapshot-georef":

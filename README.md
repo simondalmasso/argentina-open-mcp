@@ -33,7 +33,47 @@ docs/plans/               # Hoja de ruta ejecutable
 .github/workflows/        # CI
 ```
 
-## Desarrollo local
+## Ejecutar localmente
+
+Requiere Python 3.11 o superior.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+python -m pip install -e ".[dev]"
+uvicorn argentina_open_data.api:app --reload
+```
+
+- Web: http://127.0.0.1:8000/
+- REST y OpenAPI: http://127.0.0.1:8000/docs
+- Health: http://127.0.0.1:8000/health
+
+En otra terminal, ejecutar el servidor MCP Streamable HTTP:
+
+```bash
+argentina-open mcp
+```
+
+Endpoint MCP local: http://127.0.0.1:8001/mcp
+
+### Primera ingesta territorial
+
+La aplicación **no descarga datos al arrancar**. Para capturar un snapshot acotado de provincias desde Georef:
+
+```bash
+argentina-open snapshot-georef provincias --limit 1000 --max-pages 1
+```
+
+El resultado se guarda en `data/snapshots/` como objeto inmutable identificado por SHA-256. Para ampliar cobertura, indicar explícitamente otro recurso y un máximo de páginas; cada solicitud respeta la cadencia conservadora del cliente Georef. No publicar datasets adicionales hasta revisar sus términos particulares.
+
+### Docker Compose
+
+```bash
+docker compose up --build -d
+docker compose --profile ingest run --rm ingest-georef provincias --limit 1000 --max-pages 1
+```
+
+Compose comparte el volumen de snapshots entre REST y MCP. La ingesta es un perfil manual, nunca una tarea de inicio automática.
 
 Requiere Python 3.11 o superior.
 

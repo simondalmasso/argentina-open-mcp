@@ -1,5 +1,3 @@
-from datetime import UTC, datetime
-
 from argentina_open_data.pipeline import capture_georef_snapshot
 from argentina_open_data.snapshots import SnapshotStore
 from argentina_open_data.sources.georef import GeorefPage, GeorefRecord, GeorefResource
