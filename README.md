@@ -29,6 +29,7 @@ tests/                    # Contratos y reglas del kernel
 docs/architecture/        # Límites y decisiones de arquitectura
 docs/governance/          # Procedencia, cobertura y política de licencias
 docs/sources/             # Registro y perfiles de fuentes con evidencia
+docs/engineering/         # Herramientas opcionales de mantenimiento
 docs/plans/               # Hoja de ruta ejecutable
 .github/workflows/        # CI
 ```
@@ -84,7 +85,7 @@ La API usa FastAPI y el servidor de agentes usa el SDK oficial MCP 2.3.0 sobre S
 
 ## Estado del trabajo
 
-Consultar [la arquitectura](docs/architecture/overview.md), [la política de datos y licencias](docs/governance/data-and-licenses.md), [el registro de fuentes](docs/sources/registry.md), [el perfil de Georef](docs/sources/georef.md), [el perfil BCRA](docs/sources/bcra.md) y [el plan de implementación](docs/plans/2026-11-02-foundation.md).
+Consultar [la arquitectura](docs/architecture/overview.md), [la política de datos y licencias](docs/governance/data-and-licenses.md), [el registro de fuentes](docs/sources/registry.md), [el perfil de Georef](docs/sources/georef.md), [el perfil BCRA](docs/sources/bcra.md), [el perfil INDEC](docs/sources/indec-api.md), [la guía opcional de Understand Anything](docs/engineering/understand-anything.md) y [el plan de implementación](docs/plans/2026-11-02-foundation.md).
 
 ## Licencia del software
 
