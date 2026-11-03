@@ -34,7 +34,7 @@ class SourceDescriptor(BaseModel):
     scope_note: str = Field(min_length=1, max_length=1000)
 
     @model_validator(mode="after")
-    def validate_license_evidence_and_admission(self) -> "SourceDescriptor":
+    def validate_license_evidence_and_admission(self) -> SourceDescriptor:
         if self.license_class != LicenseClass.UNKNOWN:
             if self.license_evidence_url is None or self.license_reviewed_at is None:
                 raise ValueError("known license classes require an evidence URL and review date")

@@ -2,7 +2,11 @@ from datetime import UTC, datetime
 
 import pytest
 
-from argentina_open_data.comparability import ComparabilityError, require_comparable, validate_comparison
+from argentina_open_data.comparability import (
+    ComparabilityError,
+    require_comparable,
+    validate_comparison,
+)
 from argentina_open_data.contracts import (
     AggregationPolicy,
     Coverage,
