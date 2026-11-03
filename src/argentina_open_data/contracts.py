@@ -87,7 +87,7 @@ class IndicatorMetadata(ContractModel):
 
 class Observation(ContractModel):
     period: str = Field(min_length=1, max_length=40)
-    value: int | float | None
+    value: int | float | None = Field(allow_inf_nan=False)
     geo_id: str = Field(min_length=1, max_length=100)
     geo_level: GeoLevel
     flags: tuple[QualityFlag, ...] = ()
@@ -104,6 +104,13 @@ class DataResponse(ContractModel):
     meta: IndicatorMetadata
     pagination: Pagination = Field(default_factory=Pagination)
     generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    @field_validator("generated_at")
+    @classmethod
+    def require_generation_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            raise ValueError("generated_at must include a timezone")
+        return value
 
 
 class Territory(ContractModel):
