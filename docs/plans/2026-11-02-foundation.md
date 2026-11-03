@@ -137,7 +137,7 @@ The MCP framework and protocol revision, REST framework, web framework, data sto
 - [x] Validate the actual local Cloudflare runtime: homepage, REST health/snapshot/territory lookup, MCP initialize, tools/list and tools/call. Use the canonical mounted endpoint `/mcp/`.
 - [x] Verify Python 3.11/3.12/3.13 tests, Ruff, Docker build, Compose configuration and REST/MCP persistence smoke test after the Cloudflare changes (CI run 41579476876).
 - [x] Add a manually triggered production deploy workflow that updates the existing `arg-open` Worker and runs post-deploy smoke checks; pushes and pull requests do not deploy production.
-- [ ] Configure the GitHub repository secret `CLOUDFLARE_API_TOKEN` with Workers Editor scoped to the existing `arg-open` Worker and variable `CLOUDFLARE_ACCOUNT_ID`.
+- [ ] Configure the GitHub repository secret `CLOUDFLARE_API_TOKEN` with Workers Editor scoped to the existing `arg-open` Worker and secret `CLOUDFLARE_ACCOUNT_ID`.
 - [ ] Run the production deploy workflow and verify `https://arg-open.simondalmasso44.workers.dev` end-to-end.
 - [ ] Review live Cloudflare plan limits and observed usage before adding larger datasets or external storage such as R2.
 
