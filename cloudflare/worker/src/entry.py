@@ -27,8 +27,9 @@ def _get_app(request):
     # for a request addressed to the MCP endpoint.
     request_path = urlsplit(request.url).path
     if request_path in {"/mcp", "/mcp/"}:
-        from argentina_open_data import mcp_server as mcp_module
         from mcp.server.transport_security import TransportSecuritySettings
+
+        from argentina_open_data import mcp_server as mcp_module
 
         mcp_module.store = _store
         server = mcp_module.create_mcp_server()
