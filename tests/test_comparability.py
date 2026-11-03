@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -34,7 +34,7 @@ def make_metadata(
             source_name="INDEC EPH",
             source_url="https://www.indec.gob.ar/indec/web/Institucional-Indec-BasesDeDatos",
             license_id="pending_dataset_level_verification",
-            retrieved_at=datetime(2026, 11, 2, tzinfo=timezone.utc),
+            retrieved_at=datetime(2026, 11, 2, tzinfo=UTC),
         ),
     )
 
