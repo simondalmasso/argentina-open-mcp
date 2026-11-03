@@ -50,9 +50,11 @@ Every transport returns the same conceptual envelope:
 
 The Python models in `src/argentina_open_data/contracts.py` are the initial executable contract. They will evolve only with versioned compatibility tests.
 
-## Runtime decisions deliberately deferred
+## Runtime choices and remaining deployment decisions
 
-FastMCP version, MCP protocol revision, REST framework, storage engine, batch scheduler, web framework, map tile provider and hosting provider remain unselected. They will be selected after a small proof of concept measures protocol compatibility, latency from Argentina, operational limits, licensing, portability and total cost. This avoids turning an unverified research claim or volatile free tier into a core dependency.
+The REST service uses FastAPI 0.156.8; the agent service uses the official MCP Python SDK 2.3.0 and Streamable HTTP. The two processes share a content-addressed filesystem snapshot store. The browser UI is a small first-party client of the REST API, not a chat wrapper. These choices have a passing Python 3.11–3.13 CI matrix and are pinned in the project metadata.
+
+A production hosting provider, domain, persistent storage implementation, ingestion scheduler, map tile provider and additional source approvals remain open. A local Docker Compose deployment is reproducible, but it is not a public deployment. Before go-live, measure latency from Argentina, configure TLS and the MCP host allowlist, verify persistent-volume behaviour, and run public REST/MCP smoke tests.
 
 ## Security boundaries
 

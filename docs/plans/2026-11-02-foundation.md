@@ -4,9 +4,9 @@
 
 **Goal:** Establish a tested, transport-neutral kernel foundation that prevents unsupported territorial comparisons and unverified data reuse.
 
-**Architecture:** A small Python package defines strict Pydantic contracts, explicit territorial comparability rules and conservative dataset-level license assessments. The web, MCP and REST surfaces will consume this kernel later; no network connector or deployment platform is introduced in this milestone.
+**Architecture:** A Python package defines strict Pydantic contracts, explicit territorial comparability rules, conservative dataset-level license assessments, immutable snapshots, a REST API, a browser UI and an MCP server. Runtime services read only locally stored snapshots; ingestion is an explicit operator action.
 
-**Tech Stack:** Python 3.11+, Pydantic 2, pytest, Ruff, GitHub Actions.
+**Tech Stack:** Python 3.11+, Pydantic 2, FastAPI 0.156.8, MCP Python SDK 2.3.0, Uvicorn, pytest, Ruff, Docker Compose and GitHub Actions.
 
 ## Global Constraints
 
@@ -15,7 +15,7 @@
 - EPH agglomerates, provinces, departments and other geographic levels must not be conflated.
 - No source is redistributed until its exact dataset license and scope have been reviewed.
 - Every observation retains period, geography, quality flags and provenance through the shared contract.
-- No deployment, paid service, secret, production credential or external account is introduced in this milestone.
+- No paid service, secret, production credential or external account is introduced. Container packaging is provided; a public deployment still requires an approved hosting account and hostname.
 - The default branch is protected from direct implementation; work is performed on a feature branch.
 
 ---
@@ -110,7 +110,7 @@ The MCP framework and protocol revision, REST framework, web framework, data sto
 - [x] Separate blocking comparability failures from non-blocking coverage and quality warnings.
 - [x] Create an evidence-backed registry with Georef as verified and BCRA institutional-site content as metadata-only.
 - [x] Document why unreviewed sources and the unverified Tucumán license claim remain out of the approved registry.
-- [ ] Verify the full Python matrix and Ruff in GitHub Actions before merging.
+- [x] Verify the full Python matrix and Ruff in GitHub Actions before merging (PR #1).
 
 ## Delivery and deployment boundary
 
