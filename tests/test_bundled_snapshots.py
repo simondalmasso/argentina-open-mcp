@@ -1,4 +1,5 @@
 from argentina_open_data.bundled_snapshots import BundledSnapshotStore
+from argentina_open_data.snapshots import SnapshotError
 from argentina_open_data.contracts import GeoLevel
 
 
@@ -32,7 +33,7 @@ def test_bundled_snapshot_store_rejects_path_escape():
 
     try:
         store.load(manifest)
-    except ValueError as exc:
+    except SnapshotError as exc:
         assert "escapes" in str(exc)
     else:
         raise AssertionError("path traversal must be rejected")
