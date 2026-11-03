@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, date, datetime
 from enum import StrEnum
 from typing import Annotated
@@ -33,6 +34,12 @@ class AggregationPolicy(StrEnum):
     OFFICIAL_ONLY = "official_only"
     COVERAGE_DECLARED = "coverage_declared"
     NOT_AGGREGATABLE = "not_aggregatable"
+
+
+class ObservationFrequency(StrEnum):
+    ANNUAL = "annual"
+    QUARTERLY = "quarterly"
+    MONTHLY = "monthly"
 
 
 class QualityFlag(StrEnum):
@@ -77,7 +84,7 @@ class IndicatorMetadata(ContractModel):
     indicator_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._-]{1,119}$")
     name: str = Field(min_length=1, max_length=200)
     unit: str = Field(min_length=1, max_length=80)
-    frequency: str = Field(min_length=1, max_length=40)
+    frequency: ObservationFrequency
     available_geo_levels: tuple[GeoLevel, ...] = Field(min_length=1)
     aggregation_policy: AggregationPolicy
     coverage: Coverage
@@ -86,11 +93,23 @@ class IndicatorMetadata(ContractModel):
 
 
 class Observation(ContractModel):
-    period: str = Field(min_length=1, max_length=40)
+    period: str = Field(min_length=4, max_length=7)
     value: int | float | None = Field(allow_inf_nan=False)
     geo_id: str = Field(min_length=1, max_length=100)
     geo_level: GeoLevel
     flags: tuple[QualityFlag, ...] = ()
+
+    @field_validator("period")
+    @classmethod
+    def require_canonical_period(cls, value: str) -> str:
+        patterns = (
+            r"^(?!0000)[0-9]{4}$",
+            r"^(?!0000)[0-9]{4}-Q[1-4]$",
+            r"^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])$",
+        )
+        if not any(re.fullmatch(pattern, value) for pattern in patterns):
+            raise ValueError("period must use YYYY, YYYY-QN or YYYY-MM format")
+        return value
 
 
 class Pagination(ContractModel):
