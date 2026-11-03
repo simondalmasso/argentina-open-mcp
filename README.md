@@ -4,7 +4,7 @@
 
 Argentina Open Data es una plataforma pública para descubrir, consultar, comparar y reutilizar datos de Argentina. Argentina Open MCP es su interfaz para agentes y desarrolladores. Ambos productos comparten un kernel de datos y un contrato de respuesta; ninguno depende de que el otro exista.
 
-> Estado: kernel, API REST, servidor MCP, interfaz web inicial y pipeline de snapshots implementados. El repositorio incluye una ingesta manual y acotada de Georef. Todavía no hay snapshots de datos publicados ni un despliegue público. Las fuentes, sus licencias y su granularidad se incorporan únicamente después de una verificación por dataset.
+> Estado: kernel, API REST, servidor MCP, interfaz web y pipeline de snapshots implementados. El repositorio incluye un snapshot inicial de las 24 provincias desde Georef v2, capturado el 3 de noviembre de 2026 y admitido bajo CC BY 4.0 con atribución. Docker Compose lo copia de forma idempotente al volumen persistente antes de iniciar REST y MCP. Todavía no hay un servicio público desplegado. Las fuentes, sus licencias y su granularidad se incorporan únicamente después de una verificación por dataset.
 
 ## Principios no negociables
 
@@ -23,8 +23,10 @@ src/argentina_open_data/  # Kernel y contratos compartidos
   comparability.py        # Reglas de comparación territorial
   licensing.py            # Evaluación conservadora de reutilización
   registry.py              # Registro versionado de fuentes y evidencias
+  seed_snapshots.py       # Carga idempotente de snapshots incluidos en la imagen
   sources/georef.py       # Cliente de lectura Georef v2
 
+data/seed-snapshots/       # Snapshots admitidos y versionados junto al código
 tests/                    # Contratos y reglas del kernel
 docs/architecture/        # Límites y decisiones de arquitectura
 docs/governance/          # Procedencia, cobertura y política de licencias
@@ -57,24 +59,41 @@ argentina-open mcp
 
 Endpoint MCP local: http://127.0.0.1:8001/mcp
 
-### Primera ingesta territorial
+### Snapshot territorial inicial
 
-La aplicación **no descarga datos al arrancar**. Para capturar un snapshot acotado de provincias desde Georef:
+El repositorio incluye un snapshot de las 24 provincias consultado a Georef v2. Identificador territorial de Santa Fe: `82`. El archivo conserva los registros devueltos por la fuente, la normalización de territorio, URL, fecha de recuperación, licencia y atribución.
 
-```bash
-argentina-open snapshot-georef provincias --limit 1000 --max-pages 1
+El digest SHA-256 del documento canónico es:
+
+```text
+4d8edd0461a34878ccd72e7ccde17fc523c22946867e5e4e073886c3811abbdb
 ```
 
-El resultado se guarda en `data/snapshots/` (o en `SNAPSHOT_DIR`) como objeto inmutable identificado por SHA-256. La captura conserva los registros fuente devueltos por Georef y su normalización territorial. El hash cubre el documento canónico, no los bytes HTTP originales ni sus encabezados. Para ampliar cobertura, indicar explícitamente otro recurso y un máximo de páginas; cada solicitud respeta la cadencia conservadora del cliente Georef.
+El hash cubre el JSON canónico validado por el modelo, no los bytes HTTP originales ni sus encabezados. El archivo se encuentra en `data/seed-snapshots/georef.territories/provincias/`.
+
+### Ingesta manual adicional
+
+La aplicación **no descarga datos externos al arrancar**. Para capturar otro snapshot acotado desde Georef:
+
+```bash
+argentina-open snapshot-georef departamentos --limit 1000 --max-pages 1
+```
+
+El resultado se guarda en `data/snapshots/` (o en `SNAPSHOT_DIR`) como objeto inmutable identificado por SHA-256. Para ampliar cobertura, indicar explícitamente otro recurso y un máximo de páginas; cada solicitud respeta la cadencia conservadora del cliente Georef.
 
 ### Docker Compose
 
 ```bash
 docker compose up --build -d
-docker compose --profile ingest run --rm ingest-georef provincias --limit 1000 --max-pages 1
 ```
 
-Compose comparte el volumen de snapshots entre REST y MCP. La ingesta es un perfil manual, nunca una tarea de inicio automática. Si se publica MCP en un dominio real, definir `MCP_ALLOWED_HOSTS` con el hostname público exacto (y `MCP_ALLOWED_ORIGINS` solo si lo consumen navegadores). No abrir el servidor con una allowlist genérica.
+El servicio de una sola ejecución `snapshot-seed` valida e importa los snapshots incluidos en la imagen al volumen nombrado. REST y MCP esperan a que esa carga termine y luego comparten el mismo volumen. La importación es idempotente: repetir un deploy no duplica objetos ni sustituye snapshots existentes. La ingesta de recursos adicionales permanece manual:
+
+```bash
+docker compose --profile ingest run --rm ingest-georef departamentos --limit 1000 --max-pages 1
+```
+
+Si se publica MCP en un dominio real, definir `MCP_ALLOWED_HOSTS` con el hostname público exacto (y `MCP_ALLOWED_ORIGINS` solo si lo consumen navegadores). No abrir el servidor con una allowlist genérica.
 
 ## Productos previstos
 
@@ -85,7 +104,7 @@ La API usa FastAPI y el servidor de agentes usa el SDK oficial MCP 2.3.0 sobre S
 
 ## Estado del trabajo
 
-Consultar [la arquitectura](docs/architecture/overview.md), [la política de datos y licencias](docs/governance/data-and-licenses.md), [el registro de fuentes](docs/sources/registry.md), [el perfil de Georef](docs/sources/georef.md), [el perfil BCRA](docs/sources/bcra.md), [el perfil INDEC](docs/sources/indec-api.md), [la guía opcional de Understand Anything](docs/engineering/understand-anything.md) y [el plan de implementación](docs/plans/2026-11-02-foundation.md).
+Consultar [la arquitectura](docs/architecture/overview.md), [la política de datos y licencias](docs/governance/data-and-licenses.md), [el registro de fuentes](docs/sources/registry.md), [el perfil de Georef](docs/sources/georef.md), [el perfil BCRA](docs/sources/bcra.md), [el perfil INDEC](docs/sources/indec-api.md), [la guía opcional de Understand Anything](docs/engineering/understand-anything.md), [la guía operativa de despliegue](docs/operations/deployment.md) y [el plan de implementación](docs/plans/2026-11-02-foundation.md).
 
 ## Licencia del software
 
