@@ -29,7 +29,7 @@ jobs:
             exit 1
           }
           test -n "$CLOUDFLARE_ACCOUNT_ID" || {
-            echo "::error::Add the CLOUDFLARE_ACCOUNT_ID repository variable."
+            echo "::error::Add the CLOUDFLARE_ACCOUNT_ID repository secret."
             exit 1
           }
       - name: Install uv
